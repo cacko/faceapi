@@ -1,0 +1,102 @@
+# https://taskfile.dev
+
+version: "3"
+
+vars:
+  PROJECT: faceapi
+
+tasks:
+  default:
+    desc: run flask cli
+    dir: src/
+    cmds:
+      - mamba run --live-stream -n {{.PROJECT}} python -m {{.PROJECT}}.cli {{.CLI_ARGS}}
+
+  push:
+    desc: commit and pushes current changes
+    cmds:
+      - git add .  || true
+      - gcom || true
+      - git push || true
+
+  pull:
+    desc: pulls from git
+    cmds:
+      - ssh $REMOTE_HOST 'source ~/.zshrc;cd /var/www/{{.PROJECT}};git reset --hard;git pull'
+
+  pp:
+    desc: push and pull
+    cmds:
+      - task: push
+      - task: pull
+
+  logs:
+    desc: monitor logs
+    cmds:
+      - ssh $REMOTE_HOST 'source ~/.zshrc;journalctl --user-unit {{.PROJECT}} -f --all'
+
+  exec:
+    desc: run  cli on remote
+    cmds:
+      - ssh $REMOTE_HOST 'source ~/.zshrc;cd /var/www/{{.PROJECT}};mamba run --live-stream -n {{.PROJECT}} python -m {{.PROJECT}}.cli {{.CLI_ARGS}}'
+
+  start:
+    desc: start the service
+    cmds:
+      - ssh $REMOTE_HOST 'source ~/.zshrc;systemctl --user start {{.PROJECT}}'
+
+  stop:
+    desc: stop the server
+    cmds:
+      - ssh $REMOTE_HOST 'source ~/.zshrc;systemctl --user stop {{.PROJECT}}'
+
+  restart:
+    desc: restart the service
+    cmds:
+      - task: stop
+      - ssh $REMOTE_HOST 'source ~/.zshrc;sleep 1'
+      - task: start
+
+  systemd-exec:
+    desc: systemd exec
+    dir: src/
+    cmds:
+      - direnv exec . mamba run --live-stream -n {{.PROJECT}} python -m {{.PROJECT}}.cli serve-api
+
+  export:
+    desc: export env
+    cmds:
+      - mamba env export --no-builds -n {{.PROJECT}} > environment.yml
+
+  export-remote:
+    desc: export env
+    cmds:
+      - ssh $REMOTE_HOST 'source ~/.zshrc;cd /var/www/{{.PROJECT}};mamba env export --no-builds -n {{.PROJECT}} > environment-remote.yml'
+      - ssh $REMOTE_HOST 'source ~/.zshrc;cd /var/www/{{.PROJECT}};task push'
+      - git pull
+
+  install:
+    desc: update package
+    cmds:
+      - ssh $REMOTE_HOST 'source ~/.zshrc;cd /var/www/{{.PROJECT}};mamba run --live-stream -n {{.PROJECT}} pip install {{.CLI_ARGS}} -U'
+      - task: export-remote
+      - task: deploy
+
+  deploy:
+    desc: shortcut for stop -> push -> pull -> restart
+    cmds:
+      - task: stop
+      - task: push
+      - task: pull
+      - task: restart
+
+  build:
+    desc: build
+    cmds:
+      - rm -rf dist/*
+      - mamba run --live-stream -n {{.PROJECT}} python  -m build
+
+  publish:
+    desc: publish
+    cmds:
+      - scp dist/* muzak:/var/www/pypi/packages/{{.PROJECT}}
