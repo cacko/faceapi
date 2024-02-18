@@ -6,6 +6,7 @@ from fastapi import (
     APIRouter,
     HTTPException,
     Request,
+    Query,
     Form,
     File,
     Path,
@@ -30,54 +31,52 @@ from starlette.concurrency import run_in_threadpool
 router = APIRouter()
 
 
-# def get_list_response(
-#     page: int = 1,
-#     limit: int = 50,
-#     last_modified: Optional[datetime] = None
-# ):
-#     results = []
-#     filters = [Event.Event == JobEvent.APPLIED]
-#     if last_modified:
-#         filters.append(Job.last_modified > last_modified)
-#     # order_by = []
+def get_list_response(
+    uid: str, page: int = 1, limit: int = 50, last_modified: Optional[datetime] = None
+):
+    results = []
+    filters = [Generated.uid == uid]
+    if last_modified:
+        filters.append(Generated.last_modified > last_modified)
+    # order_by = []
 
-#     base_query = Event.select().join_from(Event, Job)
-#     query = base_query.where(*filters)
-#     total = query.count()
-#     if total > 0:
-#         page = min(max(1, page), floor(total / limit) + 1)
-#     results = [event.Job.to_response(events=[event.to_response()]).model_dump()
-#                for event in query.paginate(page, limit)]
-#     logging.debug(results)
-#     headers = {
-#         "x-pagination-total": f"{total}",
-#         "x-pagination-page": f"{page}",
-#     }
+    base_query = Generated.select()
+    # .join_from(Event, Job)
+    query = base_query.where(*filters)
+    total = query.count()
+    if total > 0:
+        page = min(max(1, page), floor(total / limit) + 1)
+    results = [rec.to_response().model_dump() for rec in query.paginate(page, limit)]
+    logging.debug(results)
+    headers = {
+        "x-pagination-total": f"{total}",
+        "x-pagination-page": f"{page}",
+    }
 
-#     def get_next_url(
-#         page: int,
-#         total: int,
-#         limit: int
-#     ):
-#         try:
-#             last_page = ceil(total/limit)
-#             page += 1
-#             assert last_page + 1 > page
-#             params = {k: v for k, v in dict(
-#                 page=page,
-#                 limit=limit,
-#             ).items() if v}
-#             return f"{app_config.api.web_host}/api/jobs?{urlencode(params)}"
-#         except AssertionError:
-#             return None
+    def get_next_url(page: int, total: int, limit: int):
+        try:
+            last_page = ceil(total / limit)
+            page += 1
+            assert last_page + 1 > page
+            params = {
+                k: v
+                for k, v in dict(
+                    page=page,
+                    limit=limit,
+                ).items()
+                if v
+            }
+            return f"{app_config.api.web_host}/api/generated?{urlencode(params)}"
+        except AssertionError:
+            return None
 
-#     if next_url := get_next_url(
-#             total=total,
-#             page=page,
-#             limit=limit,
-#     ):
-#         headers["x-pagination-next"] = next_url
-#     return JSONResponse(content=results, headers=headers)
+    if next_url := get_next_url(
+        total=total,
+        page=page,
+        limit=limit,
+    ):
+        headers["x-pagination-next"] = next_url
+    return JSONResponse(content=results, headers=headers)
 
 
 # @router.get("/api/jobs", tags=["api"])
@@ -92,6 +91,21 @@ router = APIRouter()
 #         limit=limit,
 #         last_modified=last_modified
 #     )
+
+
+@router.get("/api/generated", tags=["api"])
+async def api_generations(
+    page: Annotated[int, Query(default=1)],
+    limit: Annotated[int, Query(default=20)],
+    last_modofied: Annotated[datetime, Query()] = None,
+    auth_user=Depends(check_auth),
+):
+    try:
+        return get_list_response(
+            page=page, limit=limit, last_modified=last_modofied, uid=auth_user.uid
+        )
+    except:
+        raise HTTPException(404)
 
 
 @router.get("/api/generated/{slug}", tags=["api"])
