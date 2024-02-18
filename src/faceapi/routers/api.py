@@ -8,15 +8,13 @@ from fastapi import (
     Request,
     Form,
     File,
+    Path,
     Depends,
-    UploadFile
+    UploadFile,
 )
+from sympy import Ge
 from faceapi.database.enums import ImageType
-from faceapi.database.models import (
-    Generated,
-    Image,
-    Prompt
-)
+from faceapi.database.models import Generated, Image, Prompt
 from fastapi.responses import JSONResponse, FileResponse
 from datetime import datetime
 from .auth import check_auth
@@ -55,7 +53,7 @@ router = APIRouter()
 #         "x-pagination-total": f"{total}",
 #         "x-pagination-page": f"{page}",
 #     }
-    
+
 #     def get_next_url(
 #         page: int,
 #         total: int,
@@ -72,7 +70,7 @@ router = APIRouter()
 #             return f"{app_config.api.web_host}/api/jobs?{urlencode(params)}"
 #         except AssertionError:
 #             return None
-    
+
 #     if next_url := get_next_url(
 #             total=total,
 #             page=page,
@@ -96,44 +94,43 @@ router = APIRouter()
 #     )
 
 
-# @router.get("/api/job/{slug}", tags=["api"])
-# def get_job(
-#     slug: str,
-#     auth_user=Depends(check_auth)
-# ):
-#     try:
-#         job: Job = Job.select(Job).where(Job.slug == slug).get()
-#         assert job
-#         events = Event.select(Event).where(Event.Job == job)
-#         response = job.to_response(events=[e.to_response() for e in events])
-#         return JSONResponse(content=response.model_dump())
-#     except AssertionError:
-#         raise HTTPException(404)
-
+@router.get("/api/generated/{slug}", tags=["api"])
+async def api_generated(
+    slug: Annotated[str, Path(title="generation id")], auth_user=Depends(check_auth)
+):
+    try:
+        record = (
+            Generated.select(Generated)
+            .where((Generated.slug == slug) & (Generated.uid == auth_user.uid))
+            .get()
+        )
+        assert record
+        response = record.to_response()
+        response.model_dump()
+    except AssertionError:
+        raise HTTPException(404)
 
 
 @router.post("/api/generate", tags=["api"])
 async def api_generate(
     file: Annotated[UploadFile, File()],
     data: Annotated[str, Form()],
-    auth_user=Depends(check_auth)
+    auth_user=Depends(check_auth),
 ):
     print(file)
     face_path = await uploaded_file(file)
     print(face_path)
     print(data)
     data_json = json.loads(data)
-    
+
     source, _ = Image.get_or_create(
-        Type=ImageType.SOURCE, 
-        Image=face_path.as_posix(), 
+        Type=ImageType.SOURCE,
+        Image=face_path.as_posix(),
         hash=file_hash(face_path),
     )
     print_term_image(image_path=face_path)
     generated, _ = Generated.get_or_create(
-        uid=auth_user.uid,
-        source=source,
-        **data_json
+        uid=auth_user.uid, source=source, **data_json
     )
     await run_in_threadpool(generated.generate)
     print_term_image(generated.image.tmp_path, height=30)

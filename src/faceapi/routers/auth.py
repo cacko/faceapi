@@ -5,9 +5,6 @@ from faceapi.firebase.auth import Auth
 import logging
 
 
-# ALLOWED_IPS = ["127.0.0.1"]
-
-
 class Authorization:
 
     async def __call__(self, request: Request):
@@ -15,8 +12,6 @@ class Authorization:
             client = request.client
             assert client
             logging.info(f"auth -> {client.host}")
-            # if client.host in ALLOWED_IPS:
-            #     return
             token = request.headers.get("x-user-token", "")
             logging.debug(f"token from header {token}")
             assert token
