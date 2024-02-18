@@ -2,7 +2,7 @@ from pydantic import BaseModel, Field
 from pydantic.fields import FieldInfo
 from pydantic_settings import BaseSettings, PydanticBaseSettingsSource
 from pathlib import Path
-from typing import Optional, Any
+from typing import Optional, Any, Type
 from appdirs import user_config_dir
 from faceapi import __name__
 from os import environ
@@ -62,7 +62,7 @@ class YamlConfigSettingsSource(PydanticBaseSettingsSource):
     
     def __call__(self):
         try:
-            pth = Path(user_config_dir()) / __name__ / "config.yaml"
+            pth = config_file
             assert pth.exists()
             data = yaml.full_load(Path(pth).read_text())
             return data
