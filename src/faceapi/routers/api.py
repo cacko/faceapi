@@ -106,7 +106,7 @@ async def api_generated(
         )
         assert record
         response = record.to_response()
-        response.model_dump()
+        return response.model_dump()
     except AssertionError:
         raise HTTPException(404)
 
