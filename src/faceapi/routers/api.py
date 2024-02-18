@@ -116,6 +116,7 @@ router = APIRouter()
 async def api_generate(
     file: Annotated[UploadFile, File()],
     data: Annotated[str, Form()],
+    auth_user=Depends(check_auth)
 ):
     print(file)
     face_path = await uploaded_file(file)
@@ -124,11 +125,13 @@ async def api_generate(
     data_json = json.loads(data)
     
     source, _ = Image.get_or_create(
-        Type=ImageType.SOURCE, Image=face_path.as_posix(), hash=file_hash(face_path)
+        Type=ImageType.SOURCE, 
+        Image=face_path.as_posix(), 
+        hash=file_hash(face_path),
     )
     print_term_image(image_path=face_path)
     generated, _ = Generated.get_or_create(
-        uid="dev",
+        uid=auth_user.uid,
         source=source,
         **data_json
     )
