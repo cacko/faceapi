@@ -1,3 +1,4 @@
+import logging
 from typing import Optional
 
 from sympy import EX
@@ -133,6 +134,7 @@ class Generated(DbModel):
             self.image = img
             return self.save(only=["image"])
         except Exception as e:
+            logging.exception(e)
             self.error = str(e)
             return self.save(only=["error"])
             
