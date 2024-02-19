@@ -19,7 +19,12 @@ def create_app():
         redoc_url="/api/redoc",
     )
 
-    origins = ["http://localhost:4200", "https://face.cacko.net"]
+    origins = [
+        "http://localhost:4200",
+        "https://face.cacko.net",
+        "https://facision.web.app",
+        "https://facision.firebaseapp.com",
+    ]
 
     assets_path = Path(app_config.api.assets)
     if not assets_path.exists():

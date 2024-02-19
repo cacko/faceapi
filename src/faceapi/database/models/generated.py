@@ -1,5 +1,7 @@
 from typing import Optional
 
+from sympy import EX
+
 from faceapi.database.enums import ImageType
 from faceapi.masha.face2img import Face2Img
 
@@ -41,6 +43,7 @@ class Generated(DbModel):
     image = ForeignKeyField(Image, null=True)
     source = ForeignKeyField(Image)
     last_modified = DateTimeField(default=datetime.datetime.now)
+    error = CleanCharField(null=True)
     deleted = BooleanField(default=False)
 
     @classmethod
@@ -103,32 +106,37 @@ class Generated(DbModel):
                 width=self.width,
                 height=self.height,
             )
-        if "only" not in kwds:
-            self.last_modified = datetime.datetime.now(tz=datetime.timezone.utc)
+        self.last_modified = datetime.datetime.now(tz=datetime.timezone.utc)
         return super().save(*args, **kwds)
 
     def generate(self) -> bool:
         if self.image:
             return True
-        client = Face2Img(
-            img_path=self.source.tmp_path,
-            template=self.template,
-            model=self.model,
-            prompt=self.prompt,
-            num_inferance_steps=self.num_inferance_steps,
-            guidance_scale=self.guidance_scale,
-            scale=self.scale,
-            clip_skip=self.clip_skip,
-            width=self.width,
-            height=self.height,
-        )
-        result = client.result()
-        assert result
-        img, _ = Image.get_or_create(
-            Type=ImageType.GENERATED, Image=result.as_posix(), hash=file_hash(result)
-        )
-        self.image = img
-        return self.save(only=["image"])
+        try:
+            client = Face2Img(
+                img_path=self.source.tmp_path,
+                template=self.template,
+                model=self.model,
+                prompt=self.prompt,
+                num_inferance_steps=self.num_inferance_steps,
+                guidance_scale=self.guidance_scale,
+                scale=self.scale,
+                clip_skip=self.clip_skip,
+                width=self.width,
+                height=self.height,
+            )
+            result = client.result()
+            assert result
+            img, _ = Image.get_or_create(
+                Type=ImageType.GENERATED, Image=result.as_posix(), hash=file_hash(result)
+            )
+            self.image = img
+            return self.save(only=["image"])
+        except Exception as e:
+            self.error = e.__cause__
+            return self.save(only=["error"])
+            
+
 
     def to_response(self, **kwds):
         return GeneratedReponse(
