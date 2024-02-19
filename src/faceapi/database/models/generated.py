@@ -133,7 +133,7 @@ class Generated(DbModel):
             self.image = img
             return self.save(only=["image"])
         except Exception as e:
-            self.error = e.__cause__
+            self.error = str(e)
             return self.save(only=["error"])
             
 
