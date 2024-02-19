@@ -136,16 +136,13 @@ async def api_generate(
     print(face_path)
     print(data)
     data_json = json.loads(data)
-
     source, _ = Image.get_or_create(
         Type=ImageType.SOURCE,
         Image=face_path.as_posix(),
         hash=file_hash(face_path),
     )
-    print_term_image(image_path=face_path)
     generated, _ = Generated.get_or_create(
         uid=auth_user.uid, source=source, **data_json
     )
     await run_in_threadpool(generated.generate)
-    print_term_image(generated.image.tmp_path, height=30)
     return generated.to_response().model_dump()
