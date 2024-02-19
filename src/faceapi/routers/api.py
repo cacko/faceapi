@@ -5,7 +5,6 @@ from urllib.parse import urlencode
 from fastapi import (
     APIRouter,
     HTTPException,
-    Request,
     Query,
     Form,
     File,
@@ -13,18 +12,14 @@ from fastapi import (
     Depends,
     UploadFile,
 )
-from sympy import Ge
 from faceapi.database.enums import ImageType
-from faceapi.database.models import Generated, Image, Prompt
-from fastapi.responses import JSONResponse, FileResponse
+from faceapi.database.models import Generated, Image
+from fastapi.responses import JSONResponse
 from datetime import datetime
 from .auth import check_auth
 from faceapi.config import app_config
-from corefile import TempPath
-from uuid import uuid4
 from corestring import file_hash
-from coreimage.terminal import print_term_image
-from faceapi.core.api import uploaded_file, make_multipart_response
+from faceapi.core.api import uploaded_file
 import json
 from starlette.concurrency import run_in_threadpool
 
