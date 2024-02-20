@@ -1,4 +1,4 @@
-from typing import Optional
+from numpy import mat
 from peewee import CharField, TextField, FieldAccessor
 from faceapi.core.s3 import S3
 from uuid import uuid4
@@ -7,8 +7,7 @@ from corefile import TempPath
 from PIL import Image
 from faceapi.routers.models import ImageResponse
 from faceapi.config import app_config
-from .enums import ImageType
-from rich import print
+from .enums import ImageType, Status
 
 CDN_ROOT = (
     f"https://{app_config.aws.cloudfront_host}" f"/{app_config.aws.media_location}"
@@ -56,6 +55,16 @@ class ImageTypeField(CharField):
 
     def python_value(self, value):
         return ImageType(value)
+
+
+class StatusField(CharField):
+    
+    
+    def db_value(self, value: Status):
+        return value.value
+
+    def python_value(self, value):
+        return Status(value)
 
 
 class ImageFieldMeta(type):

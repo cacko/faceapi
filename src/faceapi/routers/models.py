@@ -3,7 +3,7 @@ from email.policy import default
 from typing import Optional
 from pydantic import AwareDatetime, BaseModel, Field
 
-from faceapi.database.enums import ImageType
+from faceapi.database.enums import ImageType, Status
 
 
 class BaseResponse(BaseModel):
@@ -30,7 +30,8 @@ class GeneratedReponse(BaseResponse):
     slug: str
     uid: str
     last_modified: AwareDatetime
-    deleted: bool = Field(default=False)
+    status: Status
+    deleted: bool = False
     prompt: Optional[str] = None
     model: Optional[str] = None
     template: Optional[str] = None
@@ -42,6 +43,7 @@ class GeneratedReponse(BaseResponse):
     height: Optional[int] = None
     image: Optional[ImageResponse] = None
     source: Optional[ImageResponse] = None
+    error: Optional[str] = None
 
 
 class PromptResponse(BaseResponse):

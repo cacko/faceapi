@@ -31,6 +31,7 @@ class DbConfig(BaseModel):
 
 class FirebaseConfig(BaseModel):
     admin_json: str
+    db: str
 
 
 class ApiConfig(BaseModel):

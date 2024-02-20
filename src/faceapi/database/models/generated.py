@@ -1,9 +1,11 @@
+from email.policy import default
 import logging
 from typing import Optional
+from venv import create
 
-from sympy import EX
+from sympy import EX, GeneratorsNeeded
 
-from faceapi.database.enums import ImageType
+from faceapi.database.enums import ImageType, Status
 from faceapi.masha.face2img import Face2Img
 
 from faceapi.database.models.image import Image
@@ -12,6 +14,7 @@ from .base import DbModel
 from faceapi.database import Database
 from faceapi.database.fields import (
     CleanCharField,
+    StatusField,
 )
 from peewee import (
     CharField,
@@ -22,11 +25,12 @@ from peewee import (
     IntegrityError,
     ForeignKeyField,
 )
-from faceapi.config import app_config
 import datetime
 
 from faceapi.routers.models import GeneratedReponse
 from corestring import file_hash, string_hash
+from playhouse.signals import Model, post_save
+from faceapi.firebase.db import GeneerationDb
 
 
 class Generated(DbModel):
@@ -44,6 +48,7 @@ class Generated(DbModel):
     image = ForeignKeyField(Image, null=True)
     source = ForeignKeyField(Image)
     last_modified = DateTimeField(default=datetime.datetime.now)
+    Status = StatusField(default=Status.STARTED)
     error = CleanCharField(null=True)
     deleted = BooleanField(default=False)
 
@@ -111,7 +116,7 @@ class Generated(DbModel):
         return super().save(*args, **kwds)
 
     def generate(self) -> bool:
-        if self.image:
+        if self.Status:
             return True
         try:
             client = Face2Img(
@@ -157,6 +162,8 @@ class Generated(DbModel):
             source=self.source.to_response() if self.source else None,
             last_modified=self.last_modified,
             deleted=self.deleted,
+            status=self.Status,
+            errro=self.error
             **kwds,
         )
 
@@ -170,4 +177,10 @@ class Generated(DbModel):
         )
 
 
-# JobSkill = Job.skills.get_through_model()
+@post_save(sender=Generated)
+def on_save_handler(model_class, instance: Generated, created):
+    fdb = GeneerationDb(uid=instance.uid)
+    fdb.status(
+        slug=instance.slug,
+        status=instance.Status
+    )

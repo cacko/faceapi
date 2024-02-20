@@ -5,7 +5,7 @@ from faceapi.config import app_config
 
 
 class ServiceAccountMeta(type):
-    _instance: Optional['ServiceAccount'] = None
+    _instance: Optional["ServiceAccount"] = None
     _admin_json: Optional[Path] = None
 
     SCOPES = [
@@ -38,13 +38,16 @@ class ServiceAccount(object, metaclass=ServiceAccountMeta):
 
     def get_app(self) -> App:
         if not self.__app:
-            self.__app = initialize_app(self.get_credentials())
+            self.__app = initialize_app(
+                self.get_credentials(), dict(databaseURL=app_config.firebase.db)
+            )
         return self.__app
 
     def get_credentials(self) -> credentials.Certificate:
         if not self.__credentials:
             self.__credentials = credentials.Certificate(
-                __class__.admin_json.as_posix())
+                __class__.admin_json.as_posix()
+            )
         return self.__credentials
 
 

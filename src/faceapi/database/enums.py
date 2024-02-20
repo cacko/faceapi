@@ -18,3 +18,11 @@ class Choices(object):
 class ImageType(Choices, StrEnum):
     SOURCE = "source"
     GENERATED = "generated"
+
+
+class Status(Choices, StrEnum):
+    STARTED = "started"
+    ERROR = "error"
+    PENDING ="pending"
+    GENERATED = "generaetd"
+    IDLE = "idle"
