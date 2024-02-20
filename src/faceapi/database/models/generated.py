@@ -163,7 +163,7 @@ class Generated(DbModel):
             last_modified=self.last_modified,
             deleted=self.deleted,
             status=self.Status,
-            errro=self.error
+            error=self.error
             **kwds,
         )
 
