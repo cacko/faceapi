@@ -1,9 +1,12 @@
 from pathlib import Path
+import time
 from click import pass_context
 from rich import print
 import typer
 from faceapi.core.commands import Command
-from faceapi.database.enums import ImageType
+from faceapi.database.enums import ImageType, Status
+from faceapi.firebase.db import GeneerationDb
+from firebase_admin.db import Event
 from faceapi.main import serve
 from faceapi.database import Generated, Image, Prompt, create_tables
 from typing_extensions import Annotated
@@ -11,8 +14,43 @@ from coreimage.terminal import print_term_image
 import logging
 from corestring import file_hash
 from faceapi.core.queue import GeneratorQueue
+from threading import Event as TEvent
+from contextlib import contextmanager
+
 
 cli = typer.Typer()
+
+
+class GenerationErrorException(Exception):
+    pass
+
+
+class GenerationSuccessException(Exception):
+    pass
+
+
+class listener:
+
+    def __init__(self, item: Generated):
+        self.event = TEvent()
+        self.event.set()
+        self.__uid = item.uid
+        self.__slug = item.slug
+
+    def listen(self):
+        db = GeneerationDb(self.__uid)
+        lst = db.get_listener(self.__slug, self.clb)
+        while self.event.is_set():
+            time.sleep(0.5)
+        lst.close()
+
+    def clb(self, ev: Event):
+        status = Status(ev.data.get("status"))
+        match status:
+            case Status.ERROR:
+                self.event.clear()
+            case Status.GENERATED:
+                self.event.clear()
 
 
 @cli.command()
@@ -62,9 +100,14 @@ def generate(
         width=width,
         height=height,
     )
-    GeneratorQueue().put_nowait((Command.GENERATE, generated.slug))
-    print_term_image(generated.image.tmp_path, height=30)
-    print(generated.to_response())    
+    if generated.Status != Status.GENERATED:
+        GeneratorQueue().put_nowait((Command.GENERATE, generated.slug))
+        l = listener(generated)
+        l.listen()
+        generated: Generated = Generated.select().where(Generated.slug == generated.slug).get()
+        print(generated.to_response())
+    if generated.Status == Status.GENERATED:
+        print_term_image(generated.image.tmp_path)
 
 
 # @cli.command()

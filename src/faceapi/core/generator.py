@@ -55,4 +55,4 @@ class Generator(StoppableThread):
             logging.exception(e)
             item.error = str(e)
             item.Status = Status.ERROR
-            return self.save(only=["error", "Status"])
+            return item.save(only=["error", "Status"])

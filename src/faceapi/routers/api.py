@@ -12,7 +12,9 @@ from fastapi import (
     Depends,
     UploadFile,
 )
-from faceapi.database.enums import ImageType
+from faceapi.core.commands import Command
+from faceapi.core.queue import GeneratorQueue
+from faceapi.database.enums import ImageType, Status
 from faceapi.database.models import Generated, Image
 from fastapi.responses import JSONResponse
 from datetime import datetime
@@ -139,5 +141,6 @@ async def api_generate(
     generated, _ = Generated.get_or_create(
         uid=auth_user.uid, source=source, **data_json
     )
-    await run_in_threadpool(generated.generate)
+    if generated.Status != Status.GENERATED:
+        GeneratorQueue().put_nowait((Command.GENERATE, generated.slug))
     return generated.to_response().model_dump()
