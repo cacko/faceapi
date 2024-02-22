@@ -2,14 +2,15 @@ from pathlib import Path
 from click import pass_context
 from rich import print
 import typer
+from faceapi.core.commands import Command
 from faceapi.database.enums import ImageType
 from faceapi.main import serve
-from faceapi.database import create_tables
-from faceapi.database.models import Generated, Image, Prompt
+from faceapi.database import Generated, Image, Prompt, create_tables
 from typing_extensions import Annotated
 from coreimage.terminal import print_term_image
 import logging
 from corestring import file_hash
+from faceapi.core.queue import GeneratorQueue
 
 cli = typer.Typer()
 
@@ -61,7 +62,7 @@ def generate(
         width=width,
         height=height,
     )
-    assert generated.generate()
+    GeneratorQueue().put_nowait((Command.GENERATE, generated.slug))
     print_term_image(generated.image.tmp_path, height=30)
     print(generated.to_response())    
 

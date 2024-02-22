@@ -1,5 +1,5 @@
 from pathlib import Path
-from firebase_admin import credentials, App, initialize_app
+from firebase_admin import credentials, App, initialize_app, db
 from typing import Optional
 from faceapi.config import app_config
 
@@ -46,9 +46,9 @@ class ServiceAccount(object, metaclass=ServiceAccountMeta):
     def get_credentials(self) -> credentials.Certificate:
         if not self.__credentials:
             self.__credentials = credentials.Certificate(
-                __class__.admin_json.as_posix()
+                self.__class__.admin_json.as_posix()
             )
         return self.__credentials
 
-
 ServiceAccount.register(Path(app_config.firebase.admin_json))
+app = ServiceAccount.app

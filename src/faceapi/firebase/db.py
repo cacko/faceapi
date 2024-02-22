@@ -2,17 +2,10 @@ import logging
 from typing import Any, Optional
 
 from faceapi.database.enums import Status
-from firebase_admin import db
+from faceapi.firebase.service_account import db
 
 
-class DbMeta(type):
-    _instance: Optional["Db"] = None
-
-    def __call__(cls, *args: Any, **kwds: Any) -> Any:
-        cls._instance = type.__call__(cls, *args, **kwds)
-
-
-class GeneerationDb(object, metaclass=DbMeta):
+class GeneerationDb(object):
 
     def __init__(
         self,
@@ -25,5 +18,6 @@ class GeneerationDb(object, metaclass=DbMeta):
         return db.reference(f"generation/{self.__uid}")
 
     def status(self, slug: str, status: Status):
-        status_ref = self.root_ref.child("slug")
+        status_ref = self.root_ref.child(slug)
+        print(status_ref)
         return status_ref.set(dict(status=status.valuke))

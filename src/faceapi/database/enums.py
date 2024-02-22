@@ -24,5 +24,6 @@ class Status(Choices, StrEnum):
     STARTED = "started"
     ERROR = "error"
     PENDING ="pending"
-    GENERATED = "generaetd"
+    GENERATED = "generated"
+    IN_PROGRESS = "in_progress"
     IDLE = "idle"

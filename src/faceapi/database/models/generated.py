@@ -1,14 +1,10 @@
-from email.policy import default
 import logging
 from typing import Optional
-from venv import create
-
-from sympy import EX, GeneratorsNeeded
-
-from faceapi.database.enums import ImageType, Status
-from faceapi.masha.face2img import Face2Img
+from playhouse.signals import post_save
+from faceapi.database.enums import Status
 
 from faceapi.database.models.image import Image
+from faceapi.firebase.db import GeneerationDb
 
 from .base import DbModel
 from faceapi.database import Database
@@ -29,8 +25,7 @@ import datetime
 
 from faceapi.routers.models import GeneratedReponse
 from corestring import file_hash, string_hash
-from playhouse.signals import Model, post_save
-from faceapi.firebase.db import GeneerationDb
+
 
 
 class Generated(DbModel):
@@ -48,7 +43,7 @@ class Generated(DbModel):
     image = ForeignKeyField(Image, null=True)
     source = ForeignKeyField(Image)
     last_modified = DateTimeField(default=datetime.datetime.now)
-    Status = StatusField(default=Status.STARTED)
+    Status = StatusField(default=Status.PENDING)
     error = CleanCharField(null=True)
     deleted = BooleanField(default=False)
 
@@ -113,36 +108,14 @@ class Generated(DbModel):
                 height=self.height,
             )
         self.last_modified = datetime.datetime.now(tz=datetime.timezone.utc)
-        return super().save(*args, **kwds)
-
-    def generate(self) -> bool:
-        if self.Status:
-            return True
-        try:
-            client = Face2Img(
-                img_path=self.source.tmp_path,
-                template=self.template,
-                model=self.model,
-                prompt=self.prompt,
-                num_inferance_steps=self.num_inferance_steps,
-                guidance_scale=self.guidance_scale,
-                scale=self.scale,
-                clip_skip=self.clip_skip,
-                width=self.width,
-                height=self.height,
-            )
-            result = client.result()
-            assert result
-            img, _ = Image.get_or_create(
-                Type=ImageType.GENERATED, Image=result.as_posix(), hash=file_hash(result)
-            )
-            self.image = img
-            return self.save(only=["image"])
-        except Exception as e:
-            logging.exception(e)
-            self.error = str(e)
-            return self.save(only=["error"])
-            
+        ret = super().save(*args, **kwds)
+        fdb = GeneerationDb(uid=self.uid)
+        print(fdb)
+        fdb.status(
+            slug=self.slug,
+            status=self.Status
+        )
+        return ret
 
 
     def to_response(self, **kwds):
@@ -163,7 +136,7 @@ class Generated(DbModel):
             last_modified=self.last_modified,
             deleted=self.deleted,
             status=self.Status,
-            error=self.error
+            error=self.error,
             **kwds,
         )
 
@@ -176,11 +149,3 @@ class Generated(DbModel):
             (("slug",), True),
         )
 
-
-@post_save(sender=Generated)
-def on_save_handler(model_class, instance: Generated, created):
-    fdb = GeneerationDb(uid=instance.uid)
-    fdb.status(
-        slug=instance.slug,
-        status=instance.Status
-    )
