@@ -36,7 +36,7 @@ class Generator(StoppableThread):
                 template=item.template,
                 model=item.model,
                 prompt=item.prompt,
-                num_inferance_steps=item.num_inferance_steps,
+                num_inference_steps=item.num_inference_steps,
                 guidance_scale=item.guidance_scale,
                 scale=item.scale,
                 clip_skip=item.clip_skip,

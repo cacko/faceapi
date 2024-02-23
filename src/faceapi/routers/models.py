@@ -35,7 +35,7 @@ class GeneratedReponse(BaseResponse):
     prompt: Optional[str] = None
     model: Optional[str] = None
     template: Optional[str] = None
-    num_inferance_steps: Optional[int] = None
+    num_inference_steps: Optional[int] = None
     guidance_scale: Optional[float] = None
     scale: Optional[float] = None
     clip_skip: Optional[int] = None

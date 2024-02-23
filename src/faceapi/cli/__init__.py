@@ -73,8 +73,8 @@ def generate(
     template: Annotated[str, typer.Option("-t", "--template")] = None,
     model: Annotated[str, typer.Option("-m", "--model")] = None,
     prompt: Annotated[str, typer.Option("-p", "--prompt")] = None,
-    num_inferance_steps: Annotated[
-        int, typer.Option("-i", "--num_inferance_steps")
+    num_inference_steps: Annotated[
+        int, typer.Option("-i", "--num_inference_steps")
     ] = None,
     guidance_scale: Annotated[float, typer.Option("-g", "--guidance_scale")] = None,
     scale: Annotated[float, typer.Option("-sc", "--scale")] = None,
@@ -93,7 +93,7 @@ def generate(
         prompt=prompt,
         uid="dev",
         source=source,
-        num_inferance_steps=num_inferance_steps,
+        num_inference_steps=num_inference_steps,
         guidance_scale=guidance_scale,
         scale=scale,
         clip_skip=clip_skip,
