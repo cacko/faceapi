@@ -22,7 +22,7 @@ class Face2Img(Client):
             attachment=self.__img_path,
         )
         logging.info(msg)
-        return img
+        return (img, msg)
 
 
 class Face2ImgOptions(Client):

@@ -2,7 +2,7 @@ import logging
 from typing import Optional
 from playhouse.signals import post_save
 from faceapi.database.enums import Status
-
+from corestring import split_with_quotes
 from faceapi.database.models.image import Image
 from faceapi.firebase.db import GeneerationDb
 
@@ -25,7 +25,38 @@ import datetime
 
 from faceapi.routers.models import GeneratedReponse
 from corestring import file_hash, string_hash
+from argparse import ArgumentParser
+from pydantic import BaseModel, validator
 
+
+class FaceGeneratorParams(BaseModel):
+    prompt: Optional[list[str]] = None
+    guidance_scale: Optional[float] = None
+    num_inference_steps: Optional[int] = None
+    negative_prompt: Optional[str] = None
+    model: Optional[str] = None
+    template: Optional[str] = None
+    scale: Optional[float] = None
+    clip_skip: Optional[int] = None
+
+    @validator("prompt")
+    def static_prompt(cls, prompt: list[str]):
+        try:
+            assert prompt
+            return " ".join(prompt)
+        except AssertionError:
+            return ""
+
+
+PROMPT_PARSER = ArgumentParser(description="Face2Image Processing", exit_on_error=False)
+PROMPT_PARSER.add_argument("prompt", nargs="*")
+PROMPT_PARSER.add_argument("-n", "--negative_prompt", type=str)
+PROMPT_PARSER.add_argument("-g", "--guidance_scale", type=float)
+PROMPT_PARSER.add_argument("-i", "--num_inference_steps", type=int)
+PROMPT_PARSER.add_argument("-sc", "--scale", type=float)
+PROMPT_PARSER.add_argument("-m", "--model", type=str)
+PROMPT_PARSER.add_argument("-t", "--template", type=str)
+PROMPT_PARSER.add_argument("-cs", "--clip_skip", type=int)
 
 
 class Generated(DbModel):
@@ -91,6 +122,12 @@ class Generated(DbModel):
         self.deleted = True
         self.save(only=["deleted"])
 
+    def parse_prompt(self, prompt: str):
+        args = split_with_quotes(prompt)
+        namespace, _ = PROMPT_PARSER.parse_known_args(args)
+        params = FaceGeneratorParams(**namespace.__dict__).model_dump(exclude_none=True)
+        self.update(**params)
+
     def save(self, *args, **kwds):
         if not self.slug:
             self.slug = self.__class__.get_slug(
@@ -109,12 +146,8 @@ class Generated(DbModel):
         self.last_modified = datetime.datetime.now(tz=datetime.timezone.utc)
         ret = super().save(*args, **kwds)
         fdb = GeneerationDb(uid=self.uid)
-        fdb.status(
-            slug=self.slug,
-            status=self.Status
-        )
+        fdb.status(slug=self.slug, status=self.Status)
         return ret
-
 
     def to_response(self, **kwds):
         return GeneratedReponse(
@@ -146,4 +179,3 @@ class Generated(DbModel):
             (("uid",), False),
             (("slug",), True),
         )
-

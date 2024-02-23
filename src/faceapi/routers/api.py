@@ -145,10 +145,7 @@ async def api_generate(
     data: Annotated[str, Form()],
     auth_user=Depends(check_auth),
 ):
-    print(file)
     face_path = await uploaded_file(file)
-    print(face_path)
-    print(data)
     data_json = json.loads(data)
     source, _ = Image.get_or_create(
         Type=ImageType.SOURCE,

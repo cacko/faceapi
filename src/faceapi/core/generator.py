@@ -19,7 +19,7 @@ class Generator(StoppableThread):
     def run(self):
         while not self.stopped():
             try:
-                _, payload = self.queue.get()
+                _, payload = self.queue.get_nowait()
                 self.__generate(slug=payload)
                 self.queue.task_done()
             except Empty:
@@ -43,10 +43,10 @@ class Generator(StoppableThread):
                 width=item.width,
                 height=item.height,
             )
-            result = client.result()
-            assert result
+            result_path, result_prompt = client.result()
+            assert result_path
             img, _ = Image.get_or_create(
-                Type=ImageType.GENERATED, Image=result.as_posix(), hash=file_hash(result)
+                Type=ImageType.GENERATED, Image=result_path.as_posix(), hash=file_hash(result_path)
             )
             item.image = img
             item.Status = Status.GENERATED
