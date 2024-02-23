@@ -10,6 +10,7 @@ from .base import DbModel
 from faceapi.database import Database
 from faceapi.database.fields import (
     CleanCharField,
+    CleanTextField,
     StatusField,
 )
 from peewee import (
@@ -62,11 +63,11 @@ PROMPT_PARSER.add_argument("-cs", "--clip_skip", type=int)
 class Generated(DbModel):
     slug = CharField(unique=True)
     uid = CleanCharField()
-    prompt = CleanCharField(null=True)
+    prompt = CleanTextField(null=True)
     model = CleanCharField(null=True)
     template = CleanCharField(null=True)
     num_inference_steps = IntegerField(null=True)
-    negative_prompt = CleanCharField(null=True)
+    negative_prompt = CleanTextField(null=True)
     guidance_scale = FloatField(null=True)
     scale = FloatField(null=True)
     clip_skip = IntegerField(null=True)
@@ -126,9 +127,9 @@ class Generated(DbModel):
 
     def parse_prompt(self, prompt: str):
         args = split_with_quotes(prompt)
-        logging.warning(args)
         namespace, _ = PROMPT_PARSER.parse_known_args(args)
         params = FaceGeneratorParams(**namespace.__dict__).model_dump(exclude_none=True)
+        logging.info(params)
         for k,v in params.items():
             if hasattr(self, k):
                 setattr(self, k, v)
