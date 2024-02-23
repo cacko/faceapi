@@ -18,6 +18,8 @@ from faceapi.database.enums import ImageType, Status
 from faceapi.database.models import Generated, Image
 from fastapi.responses import JSONResponse
 from datetime import datetime
+
+from faceapi.masha.face2img import Face2ImgOptions
 from .auth import check_auth
 from faceapi.config import app_config
 from corestring import file_hash
@@ -144,3 +146,11 @@ async def api_generate(
     if generated.Status != Status.GENERATED:
         GeneratorQueue().put_nowait((Command.GENERATE, generated.slug))
     return generated.to_response().model_dump()
+
+
+@router.get("/api/options", tags=["api"])
+async def api_options(
+    auth_user=Depends(check_auth),
+):
+    api = Face2ImgOptions()
+    return api.result()
