@@ -65,7 +65,8 @@ class Generated(DbModel):
     prompt = CleanCharField(null=True)
     model = CleanCharField(null=True)
     template = CleanCharField(null=True)
-    num_inferance_steps = IntegerField(null=True)
+    num_inference_steps = IntegerField(null=True)
+    negative_prompt = CleanCharField(null=True)
     guidance_scale = FloatField(null=True)
     scale = FloatField(null=True)
     clip_skip = IntegerField(null=True)
@@ -83,12 +84,13 @@ class Generated(DbModel):
         prompt = [kwds.get("prompt", "")]
         prompt.append(kwds.get("model", ""))
         prompt.append(kwds.get("template", ""))
-        prompt.append(kwds.get("num_inferance_steps", ""))
+        prompt.append(kwds.get("num_inference_steps", ""))
         prompt.append(kwds.get("guidance_scale", ""))
         prompt.append(kwds.get("scale", ""))
         prompt.append(kwds.get("clip_skip", ""))
         prompt.append(kwds.get("width", ""))
         prompt.append(kwds.get("height", ""))
+        prompt.append(kwds.get("negative_prompt", ""))
         uid = kwds.get("uid")
         assert uid
         source = kwds.get("source")
@@ -138,12 +140,13 @@ class Generated(DbModel):
                 template=self.template,
                 source=self.source,
                 uid=self.uid,
-                num_inferance_steps=self.num_inferance_steps,
+                num_inference_steps=self.num_inference_steps,
                 guidance_scale=self.guidance_scale,
                 scale=self.scale,
                 clip_skip=self.clip_skip,
                 width=self.width,
                 height=self.height,
+                negative_prompt=self.negative_prompt,
             )
         self.last_modified = datetime.datetime.now(tz=datetime.timezone.utc)
         ret = super().save(*args, **kwds)
@@ -158,7 +161,8 @@ class Generated(DbModel):
             prompt=self.prompt,
             model=self.model,
             template=self.template,
-            num_inferance_steps=self.num_inferance_steps,
+            negative_prompt=self.negative_prompt,
+            num_inference_steps=self.num_inference_steps,
             guidance_scale=self.guidance_scale,
             scale=self.scale,
             clip_skip=self.clip_skip,

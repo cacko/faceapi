@@ -1,6 +1,6 @@
 import json
 from typing import Optional
-from faceapi.database.fields import CleanCharField
+from faceapi.database.fields import CleanCharField, CleanTextField
 from .base import DbModel
 from faceapi.database import Database
 from faceapi.routers.models import PromptResponse
@@ -12,9 +12,10 @@ from peewee import (
 class Prompt(DbModel):
     uid = CleanCharField()
     model = CleanCharField()
-    prompt = CleanCharField(null=True)
+    prompt = CleanTextField(null=True)
     template = CleanCharField(null=True)
     num_inference_steps = IntegerField(null=True)
+    negative_prompt = CleanTextField(null=True)
     guidance_scale = FloatField(null=True)
     scale = FloatField(null=True)
     clip_skip = IntegerField(null=True)
@@ -24,8 +25,9 @@ class Prompt(DbModel):
         cls, 
         model: str=None,
         prompt: str=None,
+        negative_prompt: str = None,
         template: str=None,
-        num_inferance_steps: int = None,
+        num_inference_steps: int = None,
         guidance_scale: float = None,
         scale: float = None,
         clip_skip: int = None
