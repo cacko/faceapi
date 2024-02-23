@@ -153,7 +153,7 @@ async def api_generate(
         hash=file_hash(face_path),
     )
     generated, _ = Generated.get_or_create(
-        uid=auth_user.uid, source=source, **data_json
+        uid=auth_user.uid, source=source, deleted=False, **data_json
     )
     if generated.Status != Status.GENERATED:
         generated.Status = Status.PENDING
