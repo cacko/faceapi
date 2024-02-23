@@ -129,8 +129,10 @@ class Generated(DbModel):
         logging.warning(args)
         namespace, _ = PROMPT_PARSER.parse_known_args(args)
         params = FaceGeneratorParams(**namespace.__dict__).model_dump(exclude_none=True)
-        logging.warn(params)
-        self.update(**params)
+        for k,v in params.items():
+            if hasattr(self, k):
+                setattr(self, k, v)
+        self.save()
 
     def save(self, *args, **kwds):
         if not self.slug:
