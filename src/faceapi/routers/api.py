@@ -37,11 +37,9 @@ def get_list_response(
     filters = [Generated.uid == uid]
     if last_modified:
         filters.append(Generated.last_modified > last_modified)
-    # order_by = []
 
     base_query = Generated.select()
-    # .join_from(Event, Job)
-    query = base_query.where(*filters)
+    query = base_query.where(*filters).order_by(Generated.last_modified.desc())
     total = query.count()
     if total > 0:
         page = min(max(1, page), floor(total / limit) + 1)
@@ -96,12 +94,12 @@ def get_list_response(
 async def api_generations(
     page: Annotated[int, Query()] = 1,
     limit: Annotated[int, Query()] = 20,
-    last_modofied: Annotated[datetime, Query()] = None,
+    last_modified: Annotated[datetime, Query()] = None,
     auth_user=Depends(check_auth),
 ):
     try:
         return get_list_response(
-            page=page, limit=limit, last_modified=last_modofied, uid=auth_user.uid
+            page=page, limit=limit, last_modified=last_modified, uid=auth_user.uid
         )
     except:
         raise HTTPException(404)
