@@ -89,8 +89,7 @@ class Generated(DbModel):
 
     def delete_instance(self, recursive=False, delete_nullable=False):
         self.deleted = True
-        self.last_modified = datetime.datetime.now(tz=datetime.timezone.utc)
-        self.save(only=["deleted", "last_modified"])
+        self.save(only=["deleted"])
 
     def save(self, *args, **kwds):
         if not self.slug:

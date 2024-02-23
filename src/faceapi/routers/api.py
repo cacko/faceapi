@@ -120,6 +120,23 @@ async def api_generated(
         return response.model_dump()
     except AssertionError:
         raise HTTPException(404)
+    
+@router.delete("/api/generated/{slug}", tags=["api"])
+async def api_generated_delete(
+    slug: Annotated[str, Path(title="generation id")], auth_user=Depends(check_auth)
+):
+    try:
+        record: Generated = (
+            Generated.select(Generated)
+            .where((Generated.slug == slug) & (Generated.uid == auth_user.uid))
+            .get()
+        )
+        record.delete_instance()
+        assert record
+        response = record.to_response()
+        return response.model_dump()
+    except AssertionError:
+        raise HTTPException(404)
 
 
 @router.post("/api/generate", tags=["api"])
