@@ -153,12 +153,14 @@ async def api_generate(
         hash=file_hash(face_path),
     )
     generated, _ = Generated.get_or_create(
-        uid=auth_user.uid, source=source, deleted=False, **data_json
+        uid=auth_user.uid, source=source, **data_json
     )
     if generated.Status != Status.GENERATED:
         generated.Status = Status.PENDING
         generated.save(only=["Status"])
         GeneratorQueue().put_nowait((Command.GENERATE, generated.slug))
+    generated.deleted = False
+    generated.save(only=["deleted"])
     return generated.to_response().model_dump()
 
 
