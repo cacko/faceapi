@@ -124,8 +124,10 @@ class Generated(DbModel):
 
     def parse_prompt(self, prompt: str):
         args = split_with_quotes(prompt)
+        logging.warning(args)
         namespace, _ = PROMPT_PARSER.parse_known_args(args)
         params = FaceGeneratorParams(**namespace.__dict__).model_dump(exclude_none=True)
+        logging.warn(params)
         self.update(**params)
 
     def save(self, *args, **kwds):

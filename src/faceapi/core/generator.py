@@ -45,6 +45,8 @@ class Generator(StoppableThread):
             )
             result_path, result_prompt = client.result()
             assert result_path
+            if result_prompt:
+                item.parse_prompt(result_prompt)
             img, _ = Image.get_or_create(
                 Type=ImageType.GENERATED, Image=result_path.as_posix(), hash=file_hash(result_path)
             )
