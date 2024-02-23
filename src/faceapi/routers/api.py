@@ -156,6 +156,8 @@ async def api_generate(
         uid=auth_user.uid, source=source, **data_json
     )
     if generated.Status != Status.GENERATED:
+        generated.Status = Status.PENDING
+        generated.save(only=["Status"])
         GeneratorQueue().put_nowait((Command.GENERATE, generated.slug))
     return generated.to_response().model_dump()
 
