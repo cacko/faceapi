@@ -91,7 +91,7 @@ def get_list_response(
 
 
 @router.get("/api/generated", tags=["api"])
-async def api_generations(
+def api_generations(
     page: Annotated[int, Query()] = 1,
     limit: Annotated[int, Query()] = 20,
     last_modified: Annotated[datetime, Query()] = None,
