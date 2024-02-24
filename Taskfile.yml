@@ -75,6 +75,11 @@ tasks:
       - ssh $REMOTE_HOST 'source ~/.zshrc;cd /var/www/{{.PROJECT}};task push'
       - git pull
 
+  import:
+    desc: update env
+    cmds:
+      - ssh $REMOTE_HOST 'source ~/.zshrc;cd /var/www/{{.PROJECT}};mamba env update -n {{.PROJECT}} -f environment.yml -prune'
+
   install:
     desc: update package
     cmds:
