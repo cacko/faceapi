@@ -78,7 +78,7 @@ tasks:
   import:
     desc: update env
     cmds:
-      - ssh $REMOTE_HOST 'source ~/.zshrc;cd /var/www/{{.PROJECT}};mamba env update -n {{.PROJECT}} -f environment.yml -prune'
+      - ssh $REMOTE_HOST 'source ~/.zshrc;cd /var/www/{{.PROJECT}};mamba env update -n {{.PROJECT}} -f environment.yml --prune'
 
   install:
     desc: update package
