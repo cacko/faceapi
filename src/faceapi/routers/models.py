@@ -25,6 +25,19 @@ class ImageResponse(BaseResponse):
     raw_src: str
     hash: str
 
+class PromptResponse(BaseResponse):
+    hash: str
+    model: Optional[str] = None
+    prompt: Optional[str] = None
+    template: Optional[str] = None
+    num_inference_steps: Optional[int] = None
+    guidance_scale: Optional[float] = None
+    scale: Optional[float] = None
+    clip_skip: Optional[int] = None
+    width: Optional[int] = None
+    height: Optional[int] = None
+    negative_prompt: Optional[str] = None
+
 
 class GeneratedReponse(BaseResponse):
     slug: str
@@ -32,27 +45,8 @@ class GeneratedReponse(BaseResponse):
     last_modified: AwareDatetime
     status: Status
     deleted: bool = False
-    prompt: Optional[str] = None
-    model: Optional[str] = None
-    template: Optional[str] = None
-    num_inference_steps: Optional[int] = None
-    negative_prompt: Optional[str] = None
-    guidance_scale: Optional[float] = None
-    scale: Optional[float] = None
-    clip_skip: Optional[int] = None
-    width: Optional[int] = None
-    height: Optional[int] = None
+    prompt: Optional[PromptResponse] = None
     image: Optional[ImageResponse] = None
     source: Optional[ImageResponse] = None
     error: Optional[str] = None
 
-
-class PromptResponse(BaseResponse):
-    uid: str
-    model: str
-    prompt: Optional[str] = None
-    template: Optional[str] = None
-    num_inference_steps: Optional[int] = None
-    guidance_scale: Optional[float] = None
-    scale: Optional[float] = None
-    clip_skip: Optional[int] = None

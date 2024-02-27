@@ -86,7 +86,7 @@ def generate(
     source, _ = Image.get_or_create(
         Type=ImageType.SOURCE, Image=face_path.as_posix(), hash=file_hash(face_path)
     )
-    prompt_obj = Prompt.get_or_create(
+    prompt_obj, _ = Prompt.get_or_create(
         model=model,
         template=template,
         prompt=prompt,

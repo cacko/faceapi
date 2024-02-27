@@ -47,15 +47,14 @@ class Generator(StoppableThread):
             result_path, result_prompt = client.result()
             assert result_path
             if result_prompt:
-                new_prompt = Prompt.parse_prompt(result_prompt)
-                print(new_prompt.to_dict())
+                new_prompt, _ = Prompt.parse_prompt(result_prompt)
                 item.prompt = new_prompt
             img, _ = Image.get_or_create(
                 Type=ImageType.GENERATED, Image=result_path.as_posix(), hash=file_hash(result_path)
             )
             item.image = img
             item.Status = Status.GENERATED
-            return item.save(only=["image", "Status"])
+            return item.save(only=["image", "Status", "prompt"])
         except Exception as e:
             logging.error(str(e))
             item.error = str(e)

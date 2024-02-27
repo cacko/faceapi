@@ -127,7 +127,7 @@ class Prompt(DbModel):
         namespace, _ = PROMPT_PARSER.parse_known_args(args)
         params = FaceGeneratorParams(**namespace.__dict__).model_dump(exclude_none=True)
         logging.info(params)
-        return cls.get_or_create(params)
+        return cls.get_or_create(**params)
 
     class Meta:
         database = Database.db
