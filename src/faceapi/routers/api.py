@@ -106,7 +106,7 @@ def api_generations(
 
 
 @router.get("/api/generated/{slug}", tags=["api"])
-async def api_generated(
+def api_generated(
     slug: Annotated[str, Path(title="generation id")], auth_user=Depends(check_auth)
 ):
     try:
@@ -122,7 +122,7 @@ async def api_generated(
         raise HTTPException(404)
     
 @router.delete("/api/generated/{slug}", tags=["api"])
-async def api_generated_delete(
+def api_generated_delete(
     slug: Annotated[str, Path(title="generation id")], auth_user=Depends(check_auth)
 ):
     try:
@@ -165,7 +165,7 @@ async def api_generate(
 
 
 @router.get("/api/options", tags=["api"])
-async def api_options(
+def api_options(
     auth_user=Depends(check_auth),
 ):
     api = Face2ImgOptions()
