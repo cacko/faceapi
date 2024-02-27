@@ -43,7 +43,7 @@ PROMPT_PARSER.add_argument("-cs", "--clip_skip", type=int)
 
 class Prompt(DbModel):
     hash = CleanCharField(unique=True)
-    model = CleanCharField()
+    model = CleanCharField(null=True)
     prompt = CleanTextField(null=True)
     template = CleanCharField(null=True)
     num_inference_steps = IntegerField(null=True)
@@ -72,9 +72,8 @@ class Prompt(DbModel):
     def get_or_create(cls, **kwargs) -> tuple["Prompt", bool]:
         defaults = kwargs.pop("defaults", {})
         query = cls.select()
-        slug = cls.get_slug(**kwargs)
-        query = query.where(cls.slug == slug)
-
+        hash = cls.get_hash(**kwargs)
+        query = query.where(cls.hash == hash)
         try:
             return query.get(), False
         except cls.DoesNotExist:
@@ -113,7 +112,7 @@ class Prompt(DbModel):
 
     @classmethod
     def create(cls, **query):
-        query["hash"] - cls.get_hash(**query)
+        query["hash"] = cls.get_hash(**query)
         return super().create(**query)
 
     def to_json(self):

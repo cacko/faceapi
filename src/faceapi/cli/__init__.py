@@ -97,6 +97,7 @@ def generate(
         width=width,
         height=height,
     )
+    print(prompt_obj)
     print_term_image(image_path=face_path)
     generated, _ = Generated.get_or_create(
         uid="dev",
