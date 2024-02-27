@@ -18,6 +18,7 @@ from faceapi.database.enums import ImageType, Status
 from faceapi.database.models import Generated, Image
 from fastapi.responses import JSONResponse
 from datetime import datetime
+from faceapi.database.models.prompt import Prompt
 
 from faceapi.masha.face2img import Face2ImgOptions
 from .auth import check_auth
@@ -152,8 +153,11 @@ async def api_generate(
         Image=face_path.as_posix(),
         hash=file_hash(face_path),
     )
+    prompt, _ = Prompt.get_or_create(
+        **data_json
+    )
     generated, _ = Generated.get_or_create(
-        uid=auth_user.uid, source=source, **data_json
+        uid=auth_user.uid, source=source, prompt=prompt
     )
     if generated.Status != Status.GENERATED:
         generated.Status = Status.PENDING
