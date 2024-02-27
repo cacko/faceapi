@@ -86,13 +86,10 @@ def generate(
     source, _ = Image.get_or_create(
         Type=ImageType.SOURCE, Image=face_path.as_posix(), hash=file_hash(face_path)
     )
-    print_term_image(image_path=face_path)
-    generated, _ = Generated.get_or_create(
+    prompt_obj = Prompt.get_or_create(
         model=model,
         template=template,
         prompt=prompt,
-        uid="dev",
-        source=source,
         num_inference_steps=num_inference_steps,
         guidance_scale=guidance_scale,
         scale=scale,
@@ -100,11 +97,19 @@ def generate(
         width=width,
         height=height,
     )
+    print_term_image(image_path=face_path)
+    generated, _ = Generated.get_or_create(
+        uid="dev",
+        source=source,
+        prompt=prompt_obj
+    )
     if generated.Status != Status.GENERATED:
         GeneratorQueue().put_nowait((Command.GENERATE, generated.slug))
         l = listener(generated)
         l.listen()
-        generated: Generated = Generated.select().where(Generated.slug == generated.slug).get()
+        generated: Generated = (
+            Generated.select().where(Generated.slug == generated.slug).get()
+        )
         print(generated.to_response())
     if generated.Status == Status.GENERATED:
         print_term_image(generated.image.tmp_path)

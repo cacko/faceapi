@@ -4,7 +4,7 @@ from typing import Optional, Any
 
 from corestring import file_hash
 from faceapi.database.enums import ImageType, Status
-from faceapi.database import Generated, Image
+from faceapi.database import Generated, Image, Prompt
 from faceapi.masha.face2img import Face2Img
 from queue import Empty, Queue
 from corethread import StoppableThread
@@ -31,22 +31,24 @@ class Generator(StoppableThread):
         item.Status = Status.IN_PROGRESS
         item.save(only=["Status"])
         try:
+            prompt: Prompt = item.prompt
             client = Face2Img(
                 img_path=item.source.tmp_path,
-                template=item.template,
-                model=item.model,
-                prompt=item.prompt,
-                num_inference_steps=item.num_inference_steps,
-                guidance_scale=item.guidance_scale,
-                scale=item.scale,
-                clip_skip=item.clip_skip,
-                width=item.width,
-                height=item.height,
+                template=prompt.template,
+                model=prompt.model,
+                prompt=item.prompt.prompt,
+                num_inference_steps=prompt.num_inference_steps,
+                guidance_scale=prompt.guidance_scale,
+                scale=prompt.scale,
+                clip_skip=prompt.clip_skip,
+                width=prompt.width,
+                height=prompt.height,
             )
             result_path, result_prompt = client.result()
             assert result_path
             if result_prompt:
-                item.parse_prompt(result_prompt)
+                new_prompt = Prompt.parse_prompt(result_prompt)
+                item.prompt = new_prompt
             img, _ = Image.get_or_create(
                 Type=ImageType.GENERATED, Image=result_path.as_posix(), hash=file_hash(result_path)
             )
