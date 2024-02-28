@@ -19,8 +19,9 @@ from faceapi.database.enums import ImageType, Status
 from faceapi.database.models import Generated, Image
 from fastapi.responses import JSONResponse
 from datetime import datetime
-from faceapi.database.models.prompt import Prompt
+from peewee import DoesNotExist
 
+from faceapi.database.models.prompt import Prompt
 from faceapi.masha.face2img import Face2ImgOptions
 from .auth import check_auth
 from faceapi.config import app_config
@@ -130,17 +131,16 @@ def api_generated_delete(
     slug: Annotated[str, Path(title="generation id")], auth_user=Depends(check_auth)
 ):
     try:
+        record: Generated = (
+            Generated.select(Generated)
+            .where((Generated.slug == slug) & (Generated.uid == auth_user.uid))
+            .get()
+        )
         with Database.db.atomic():
-            record: Generated = (
-                Generated.select(Generated)
-                .where((Generated.slug == slug) & (Generated.uid == auth_user.uid))
-                .get()
-            )
             record.delete_instance()
-            assert record
             response = record.to_response()
             return response.model_dump()
-    except AssertionError:
+    except (AssertionError, DoesNotExist):
         raise HTTPException(404)
 
 
@@ -168,8 +168,9 @@ async def api_generate(
             generated.Status = Status.PENDING
             generated.save(only=["Status"])
         GeneratorQueue().put_nowait((Command.GENERATE, generated.slug))
-    generated.deleted = False
-    generated.save(only=["deleted"])
+    with Database.db.atomic():
+        generated.deleted = False
+        generated.save(only=["deleted"])
     return generated.to_response().model_dump()
 
 
