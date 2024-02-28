@@ -39,7 +39,8 @@ PROMPT_PARSER.add_argument("-sc", "--scale", type=float)
 PROMPT_PARSER.add_argument("-m", "--model", type=str)
 PROMPT_PARSER.add_argument("-t", "--template", type=str)
 PROMPT_PARSER.add_argument("-cs", "--clip_skip", type=int)
-
+PROMPT_PARSER.add_argument("-w", "--width", type=str)
+PROMPT_PARSER.add_argument("-h", "--height", type=str)
 
 class Prompt(DbModel):
     hash = CleanCharField(unique=True)
