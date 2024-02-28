@@ -3,7 +3,6 @@ from playhouse.pool import PooledPostgresqlExtDatabase
 from faceapi.config import app_config
 from typing import Optional
 
-
 class DatabaseMeta(type):
     _instance: Optional['Database'] = None
 
