@@ -150,28 +150,27 @@ async def api_generate(
     data: Annotated[str, Form()],
     auth_user=Depends(check_auth),
 ):
-    with Database.db:
-        face_path = await uploaded_file(file)
-        data_json = json.loads(data)
-        source, _ = Image.get_or_create(
-            Type=ImageType.SOURCE,
-            Image=face_path.as_posix(),
-            hash=file_hash(face_path),
-        )
-        prompt, _ = Prompt.get_or_create(
-            **data_json
-        )
-        generated, _ = Generated.get_or_create(
-            uid=auth_user.uid, source=source, prompt=prompt
-        )
-        if generated.Status != Status.GENERATED:
-            with Database.db.atomic():
-                generated.Status = Status.PENDING
-                generated.save(only=["Status"])
-            GeneratorQueue().put_nowait((Command.GENERATE, generated.slug))
-        generated.deleted = False
-        generated.save(only=["deleted"])
-        return generated.to_response().model_dump()
+    face_path = await uploaded_file(file)
+    data_json = json.loads(data)
+    source, _ = Image.get_or_create(
+        Type=ImageType.SOURCE,
+        Image=face_path.as_posix(),
+        hash=file_hash(face_path),
+    )
+    prompt, _ = Prompt.get_or_create(
+        **data_json
+    )
+    generated, _ = Generated.get_or_create(
+        uid=auth_user.uid, source=source, prompt=prompt
+    )
+    if generated.Status != Status.GENERATED:
+        with Database.db.atomic():
+            generated.Status = Status.PENDING
+            generated.save(only=["Status"])
+        GeneratorQueue().put_nowait((Command.GENERATE, generated.slug))
+    generated.deleted = False
+    generated.save(only=["deleted"])
+    return generated.to_response().model_dump()
 
 
 @router.get("/api/options", tags=["api"])
