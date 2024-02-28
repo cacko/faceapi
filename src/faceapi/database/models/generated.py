@@ -104,6 +104,6 @@ class Generated(DbModel):
         table_name = "face_generated"
         order_by = ["-last_modified"]
         indexes = (
-            (("uid",), False),
+            (("uid", "slug", "last_modified"), False),
             (("slug",), True),
         )
