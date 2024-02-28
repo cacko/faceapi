@@ -19,7 +19,7 @@ class Generator(StoppableThread):
     def run(self):
         while not self.stopped():
             try:
-                _, payload = self.queue.get_nowait()
+                _, payload = self.queue.get()
                 self.__generate(slug=payload)
                 self.queue.task_done()
             except Empty:

@@ -6,5 +6,5 @@ import os
 
 
 corelog.register(
-    os.environ.get("FACE_LOG_LEVEL", "INFO"), handler_type=corelog.Handlers.RICH
+    os.environ.get("FACE_LOG_LEVEL", "DEBUG"), handler_type=corelog.Handlers.RICH
 )
