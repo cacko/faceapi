@@ -1,7 +1,5 @@
 import logging
 import time
-from typing import Optional, Any
-
 from corestring import file_hash
 from faceapi.database.database import Database
 from faceapi.database.enums import ImageType, Status
@@ -24,7 +22,7 @@ class Generator(StoppableThread):
                 self.__generate(slug=payload)
                 self.queue.task_done()
             except Empty:
-                time.sleep(0.2)
+                time.sleep(1)
                 
                 
     def __generate(self, slug: str):
