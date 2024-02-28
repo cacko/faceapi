@@ -23,7 +23,7 @@ class Database(object, metaclass=DatabaseMeta):
 
     def __init__(self):
         parsed = parse(app_config.db.url)
-        self.__db = PooledPostgresqlExtDatabase(**parsed)
+        self.__db = PooledPostgresqlExtDatabase(**parsed, max_connections=20, stale_timeout=300)
 
     def get_db(self) -> PooledPostgresqlExtDatabase:
         return self.__db
