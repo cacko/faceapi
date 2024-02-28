@@ -30,7 +30,7 @@ class FaceGeneratorParams(BaseModel):
             return ""
 
 
-PROMPT_PARSER = ArgumentParser(description="Face2Image Processing", exit_on_error=False)
+PROMPT_PARSER = ArgumentParser(description="Face2Image Processing", exit_on_error=False, add_help=False)
 PROMPT_PARSER.add_argument("prompt", nargs="*")
 PROMPT_PARSER.add_argument("-n", "--negative_prompt", type=str)
 PROMPT_PARSER.add_argument("-g", "--guidance_scale", type=float)
