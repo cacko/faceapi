@@ -14,6 +14,7 @@ from fastapi import (
 )
 from faceapi.core.commands import Command
 from faceapi.core.queue import GeneratorQueue
+from faceapi.database.database import Database
 from faceapi.database.enums import ImageType, Status
 from faceapi.database.models import Generated, Image
 from fastapi.responses import JSONResponse
@@ -99,9 +100,10 @@ def api_generations(
     auth_user=Depends(check_auth),
 ):
     try:
-        return get_list_response(
-            page=page, limit=limit, last_modified=last_modified, uid=auth_user.uid
-        )
+        with Database.db.atomic():
+            return get_list_response(
+                page=page, limit=limit, last_modified=last_modified, uid=auth_user.uid
+            )
     except:
         raise HTTPException(404)
 
@@ -111,14 +113,15 @@ def api_generated(
     slug: Annotated[str, Path(title="generation id")], auth_user=Depends(check_auth)
 ):
     try:
-        record = (
-            Generated.select(Generated)
-            .where((Generated.slug == slug) & (Generated.uid == auth_user.uid))
-            .get()
-        )
-        assert record
-        response = record.to_response()
-        return response.model_dump()
+        with Database.db.atomic():
+            record = (
+                Generated.select(Generated)
+                .where((Generated.slug == slug) & (Generated.uid == auth_user.uid))
+                .get()
+            )
+            assert record
+            response = record.to_response()
+            return response.model_dump()
     except AssertionError:
         raise HTTPException(404)
     
@@ -127,15 +130,16 @@ def api_generated_delete(
     slug: Annotated[str, Path(title="generation id")], auth_user=Depends(check_auth)
 ):
     try:
-        record: Generated = (
-            Generated.select(Generated)
-            .where((Generated.slug == slug) & (Generated.uid == auth_user.uid))
-            .get()
-        )
-        record.delete_instance()
-        assert record
-        response = record.to_response()
-        return response.model_dump()
+        with Database.db.atomic():
+            record: Generated = (
+                Generated.select(Generated)
+                .where((Generated.slug == slug) & (Generated.uid == auth_user.uid))
+                .get()
+            )
+            record.delete_instance()
+            assert record
+            response = record.to_response()
+            return response.model_dump()
     except AssertionError:
         raise HTTPException(404)
 
@@ -148,24 +152,25 @@ async def api_generate(
 ):
     face_path = await uploaded_file(file)
     data_json = json.loads(data)
-    source, _ = Image.get_or_create(
-        Type=ImageType.SOURCE,
-        Image=face_path.as_posix(),
-        hash=file_hash(face_path),
-    )
-    prompt, _ = Prompt.get_or_create(
-        **data_json
-    )
-    generated, _ = Generated.get_or_create(
-        uid=auth_user.uid, source=source, prompt=prompt
-    )
-    if generated.Status != Status.GENERATED:
-        generated.Status = Status.PENDING
-        generated.save(only=["Status"])
-        GeneratorQueue().put_nowait((Command.GENERATE, generated.slug))
-    generated.deleted = False
-    generated.save(only=["deleted"])
-    return generated.to_response().model_dump()
+    with Database.db.atomic():
+        source, _ = Image.get_or_create(
+            Type=ImageType.SOURCE,
+            Image=face_path.as_posix(),
+            hash=file_hash(face_path),
+        )
+        prompt, _ = Prompt.get_or_create(
+            **data_json
+        )
+        generated, _ = Generated.get_or_create(
+            uid=auth_user.uid, source=source, prompt=prompt
+        )
+        if generated.Status != Status.GENERATED:
+            generated.Status = Status.PENDING
+            generated.save(only=["Status"])
+            GeneratorQueue().put_nowait((Command.GENERATE, generated.slug))
+        generated.deleted = False
+        generated.save(only=["deleted"])
+        return generated.to_response().model_dump()
 
 
 @router.get("/api/options", tags=["api"])

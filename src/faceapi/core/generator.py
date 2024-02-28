@@ -3,6 +3,7 @@ import time
 from typing import Optional, Any
 
 from corestring import file_hash
+from faceapi.database.database import Database
 from faceapi.database.enums import ImageType, Status
 from faceapi.database import Generated, Image, Prompt
 from faceapi.masha.face2img import Face2Img
@@ -27,34 +28,35 @@ class Generator(StoppableThread):
                 
                 
     def __generate(self, slug: str):
-        item: Generated = Generated.select(Generated).where(Generated.slug == slug).get()
-        item.Status = Status.IN_PROGRESS
-        item.save(only=["Status"])
         try:
-            prompt: Prompt = item.prompt
-            client = Face2Img(
-                img_path=item.source.tmp_path,
-                template=prompt.template,
-                model=prompt.model,
-                prompt=item.prompt.prompt,
-                num_inference_steps=prompt.num_inference_steps,
-                guidance_scale=prompt.guidance_scale,
-                scale=prompt.scale,
-                clip_skip=prompt.clip_skip,
-                width=prompt.width,
-                height=prompt.height,
-            )
-            result_path, result_prompt = client.result()
-            assert result_path
-            if result_prompt:
-                new_prompt, _ = Prompt.parse_prompt(result_prompt)
-                item.prompt = new_prompt
-            img, _ = Image.get_or_create(
-                Type=ImageType.GENERATED, Image=result_path.as_posix(), hash=file_hash(result_path)
-            )
-            item.image = img
-            item.Status = Status.GENERATED
-            return item.save(only=["image", "Status", "prompt"])
+            with Database.db.atomic():
+                item: Generated = Generated.select(Generated).where(Generated.slug == slug).get()
+                item.Status = Status.IN_PROGRESS
+                item.save(only=["Status"])
+                prompt: Prompt = item.prompt
+                client = Face2Img(
+                    img_path=item.source.tmp_path,
+                    template=prompt.template,
+                    model=prompt.model,
+                    prompt=item.prompt.prompt,
+                    num_inference_steps=prompt.num_inference_steps,
+                    guidance_scale=prompt.guidance_scale,
+                    scale=prompt.scale,
+                    clip_skip=prompt.clip_skip,
+                    width=prompt.width,
+                    height=prompt.height,
+                )
+                result_path, result_prompt = client.result()
+                assert result_path
+                if result_prompt:
+                    new_prompt, _ = Prompt.parse_prompt(result_prompt)
+                    item.prompt = new_prompt
+                img, _ = Image.get_or_create(
+                    Type=ImageType.GENERATED, Image=result_path.as_posix(), hash=file_hash(result_path)
+                )
+                item.image = img
+                item.Status = Status.GENERATED
+                return item.save(only=["image", "Status", "prompt"])
         except Exception as e:
             logging.error(str(e))
             item.error = str(e)

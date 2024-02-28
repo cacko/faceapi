@@ -1,5 +1,5 @@
 from playhouse.db_url import parse
-from playhouse.postgres_ext import PostgresqlExtDatabase
+from playhouse.pool import PooledPostgresqlExtDatabase
 from faceapi.config import app_config
 from typing import Optional
 
@@ -13,7 +13,7 @@ class DatabaseMeta(type):
         return cls._instance
 
     @property
-    def db(cls) -> PostgresqlExtDatabase:
+    def db(cls) -> PooledPostgresqlExtDatabase:
         return cls().get_db()
     
     
@@ -23,7 +23,7 @@ class Database(object, metaclass=DatabaseMeta):
 
     def __init__(self):
         parsed = parse(app_config.db.url)
-        self.__db = PostgresqlExtDatabase(**parsed)
+        self.__db = PooledPostgresqlExtDatabase(**parsed)
 
-    def get_db(self) -> PostgresqlExtDatabase:
+    def get_db(self) -> PooledPostgresqlExtDatabase:
         return self.__db
