@@ -3,6 +3,7 @@ import os
 from fastapi import FastAPI
 
 from faceapi.core.queue import GeneratorQueue
+from faceapi.database.database import Database
 from .routers import api
 from fastapi.middleware.cors import CORSMiddleware
 from faceapi.config import app_config
@@ -69,6 +70,7 @@ generator_worker.start()
 
 def handler_stop_signals(signum, frame):
     generator_worker.stop()
+    Database.db.close_all()
     server.shutdown()
     raise RuntimeError
 
