@@ -53,7 +53,7 @@ class Generated(DbModel):
         defaults = kwargs.pop("defaults", {})
         query = cls.select()
         slug = cls.get_slug(**kwargs)
-        query = query.where(cls.slug == slug)
+        query = query.where(cls.slug == slug & cls.deleted == False)
 
         try:
             return query.get(), False
@@ -77,6 +77,8 @@ class Generated(DbModel):
     def delete_instance(self, recursive=False, delete_nullable=False):
         self.deleted = True
         self.save(only=["deleted"])
+        self.image.delete_instance()
+        self.source.delete_instance()
 
     def save(self, *args, **kwds):
         self.last_modified = datetime.datetime.now(tz=datetime.timezone.utc)

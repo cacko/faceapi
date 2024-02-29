@@ -10,11 +10,11 @@ from corethread import StoppableThread
 
 
 class Generator(StoppableThread):
-    
+
     def __init__(self, queue: Queue, *args, **kwargs):
         self.queue = queue
         super().__init__(*args, **kwargs)
-        
+
     def run(self):
         while not self.stopped():
             try:
@@ -23,11 +23,14 @@ class Generator(StoppableThread):
                 self.queue.task_done()
             except Empty:
                 time.sleep(1)
-                
-                
+
     def __generate(self, slug: str):
         try:
-            item: Generated = Generated.select(Generated).where(Generated.slug == slug).get()
+            item: Generated = (
+                Generated.select(Generated)
+                .where(Generated.slug == slug & Generated.deleted == False)
+                .get()
+            )
             with Database.db.atomic():
                 item.Status = Status.IN_PROGRESS
                 item.save(only=["Status"])
@@ -50,7 +53,9 @@ class Generator(StoppableThread):
                 new_prompt, _ = Prompt.parse_prompt(result_prompt)
                 item.prompt = new_prompt
             img, _ = Image.get_or_create(
-                Type=ImageType.GENERATED, Image=result_path.as_posix(), hash=file_hash(result_path)
+                Type=ImageType.GENERATED,
+                Image=result_path.as_posix(),
+                hash=file_hash(result_path),
             )
             with Database.db.atomic():
                 item.image = img

@@ -28,7 +28,6 @@ from faceapi.config import app_config
 from corestring import file_hash
 from faceapi.core.api import uploaded_file
 import json
-from starlette.concurrency import run_in_threadpool
 
 router = APIRouter()
 
@@ -125,7 +124,8 @@ def api_generated(
             return response.model_dump()
     except AssertionError:
         raise HTTPException(404)
-    
+
+
 @router.delete("/api/generated/{slug}", tags=["api"])
 def api_generated_delete(
     slug: Annotated[str, Path(title="generation id")], auth_user=Depends(check_auth)
@@ -133,7 +133,11 @@ def api_generated_delete(
     try:
         record: Generated = (
             Generated.select(Generated)
-            .where((Generated.slug == slug) & (Generated.uid == auth_user.uid))
+            .where(
+                (Generated.slug == slug)
+                & (Generated.uid == auth_user.uid)
+                & (Generated.deleted == False)
+            )
             .get()
         )
         with Database.db.atomic():
@@ -157,9 +161,7 @@ async def api_generate(
         Image=face_path.as_posix(),
         hash=file_hash(face_path),
     )
-    prompt, _ = Prompt.get_or_create(
-        **data_json
-    )
+    prompt, _ = Prompt.get_or_create(**data_json)
     generated, _ = Generated.get_or_create(
         uid=auth_user.uid, source=source, prompt=prompt
     )
@@ -168,9 +170,6 @@ async def api_generate(
             generated.Status = Status.PENDING
             generated.save(only=["Status"])
         GeneratorQueue().put_nowait((Command.GENERATE, generated.slug))
-    with Database.db.atomic():
-        generated.deleted = False
-        generated.save(only=["deleted"])
     return generated.to_response().model_dump()
 
 
