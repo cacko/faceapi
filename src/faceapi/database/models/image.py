@@ -26,7 +26,7 @@ class Image(DbModel):
         defaults = kwargs.pop("defaults", {})
         query = cls.select()
         hash = kwargs.get("hash")
-        query = query.where(cls.hash == hash & cls.deleted == False)
+        query = query.where((cls.hash == hash) & (cls.deleted == False))
 
         try:
             return query.get(), False

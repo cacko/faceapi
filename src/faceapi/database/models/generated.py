@@ -53,7 +53,7 @@ class Generated(DbModel):
         defaults = kwargs.pop("defaults", {})
         query = cls.select()
         slug = cls.get_slug(**kwargs)
-        query = query.where(cls.slug == slug & cls.deleted == False)
+        query = query.where((cls.slug == slug) & (cls.deleted == False))
 
         try:
             return query.get(), False
