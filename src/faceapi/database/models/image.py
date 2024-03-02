@@ -15,7 +15,7 @@ import datetime
 
 
 class Image(DbModel):
-    hash = CharField(unique=True)
+    hash = CharField()
     Type = ImageTypeField()
     Image = ImageField()
     last_modified = DateTimeField(default=datetime.datetime.now)
@@ -65,7 +65,7 @@ class Image(DbModel):
         database = Database.db
         table_name = "face_image"
         order_by = ["-last_modified"]
-        indexes = ((("hash", "Type"), True),)
+        indexes = ((("hash", "Type"), False),)
 
 
 # JobSkill = Job.skills.get_through_model()

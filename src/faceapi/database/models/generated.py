@@ -77,7 +77,10 @@ class Generated(DbModel):
     def delete_instance(self, recursive=False, delete_nullable=False):
         self.deleted = True
         self.save(only=["deleted"])
-        self.image.delete_instance()
+        try:
+            self.image.delete_instance()
+        except Exception:
+            pass
         self.source.delete_instance()
 
     def save(self, *args, **kwds):
