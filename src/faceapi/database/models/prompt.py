@@ -20,6 +20,7 @@ class FaceGeneratorParams(BaseModel):
     model: Optional[str] = None
     template: Optional[str] = None
     scale: Optional[float] = None
+    strength: Optional[float] = None
     clip_skip: Optional[int] = None
     width: Optional[int] = None
     height: Optional[int] = None
@@ -34,7 +35,9 @@ class FaceGeneratorParams(BaseModel):
             return ""
 
 
-PROMPT_PARSER = ArgumentParser(description="Face2Image Processing", exit_on_error=False, add_help=False)
+PROMPT_PARSER = ArgumentParser(
+    description="Face2Image Processing", exit_on_error=False, add_help=False
+)
 PROMPT_PARSER.add_argument("prompt", nargs="*")
 PROMPT_PARSER.add_argument("-n", "--negative_prompt", type=str)
 PROMPT_PARSER.add_argument("-g", "--guidance_scale", type=float)
@@ -45,7 +48,9 @@ PROMPT_PARSER.add_argument("-t", "--template", type=str)
 PROMPT_PARSER.add_argument("-cs", "--clip_skip", type=int)
 PROMPT_PARSER.add_argument("-w", "--width", type=int)
 PROMPT_PARSER.add_argument("-h", "--height", type=int)
+PROMPT_PARSER.add_argument("-st", "--strength", type=float)
 PROMPT_PARSER.add_argument("-s", "--seed", type=int)
+
 
 class Prompt(DbModel):
     hash = CleanCharField(unique=True)
@@ -59,6 +64,7 @@ class Prompt(DbModel):
     clip_skip = IntegerField(null=True)
     width = IntegerField(null=True)
     height = IntegerField(null=True)
+    strength = FloatField(null=True)
     seed = IntegerField(null=True)
 
     @classmethod
@@ -74,6 +80,7 @@ class Prompt(DbModel):
         prompt.append(kwds.get("height", ""))
         prompt.append(kwds.get("negative_prompt", ""))
         prompt.append(kwds.get("seed", ""))
+        prompt.append(kwds.get("strength", ""))
         return string_hash("-".join(map(str, filter(None, prompt))))
 
     @classmethod
@@ -95,28 +102,6 @@ class Prompt(DbModel):
                     return query.get(), False
                 except cls.DoesNotExist:
                     raise exc
-
-    @classmethod
-    def to_string(
-        cls,
-        model: str = None,
-        prompt: str = None,
-        negative_prompt: str = None,
-        template: str = None,
-        num_inference_steps: int = None,
-        guidance_scale: float = None,
-        scale: float = None,
-        clip_skip: int = None,
-    ) -> str:
-        res = ""
-        if model:
-            res += f" -m {model}"
-        if prompt:
-            res += f' -p "{prompt}"'
-        if template:
-            res += f" -t {template}"
-
-        return res.strip()
 
     @classmethod
     def create(cls, **query):
