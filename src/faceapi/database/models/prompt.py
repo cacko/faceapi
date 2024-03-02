@@ -5,7 +5,6 @@ from .base import DbModel
 from faceapi.database import Database
 from faceapi.routers.models import PromptResponse
 from peewee import FloatField, IntegerField, IntegrityError, DoubleField
-from peewee import 
 from corestring import split_with_quotes, string_hash
 from argparse import ArgumentParser
 from pydantic import BaseModel, validator
