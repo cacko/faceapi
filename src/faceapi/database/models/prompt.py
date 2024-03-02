@@ -23,6 +23,7 @@ class FaceGeneratorParams(BaseModel):
     clip_skip: Optional[int] = None
     width: Optional[int] = None
     height: Optional[int] = None
+    seed: Optional[int] = None
 
     @validator("prompt")
     def static_prompt(cls, prompt: list[str]):
@@ -44,6 +45,7 @@ PROMPT_PARSER.add_argument("-t", "--template", type=str)
 PROMPT_PARSER.add_argument("-cs", "--clip_skip", type=int)
 PROMPT_PARSER.add_argument("-w", "--width", type=int)
 PROMPT_PARSER.add_argument("-h", "--height", type=int)
+PROMPT_PARSER.add_argument("-s", "--seed", type=int)
 
 class Prompt(DbModel):
     hash = CleanCharField(unique=True)
@@ -57,6 +59,7 @@ class Prompt(DbModel):
     clip_skip = IntegerField(null=True)
     width = IntegerField(null=True)
     height = IntegerField(null=True)
+    seed = IntegerField(null=True)
 
     @classmethod
     def get_hash(cls, **kwds) -> Optional[str]:
@@ -70,6 +73,7 @@ class Prompt(DbModel):
         prompt.append(kwds.get("width", ""))
         prompt.append(kwds.get("height", ""))
         prompt.append(kwds.get("negative_prompt", ""))
+        prompt.append(kwds.get("seed", ""))
         return string_hash("-".join(map(str, filter(None, prompt))))
 
     @classmethod
@@ -127,9 +131,7 @@ class Prompt(DbModel):
 
     @classmethod
     def parse_prompt(cls, prompt: str) -> "Prompt":
-        logging.info(prompt)
         args = shlex.split(prompt)
-        logging.warning(args)
         namespace, _ = PROMPT_PARSER.parse_known_args(args)
         params = FaceGeneratorParams(**namespace.__dict__).model_dump(exclude_none=True)
         return cls.get_or_create(**params)
