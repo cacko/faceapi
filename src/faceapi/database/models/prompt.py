@@ -20,6 +20,8 @@ class FaceGeneratorParams(BaseModel):
     template: Optional[str] = None
     scale: Optional[float] = None
     clip_skip: Optional[int] = None
+    width: Optional[int] = None
+    height: Optional[int] = None
 
     @validator("prompt")
     def static_prompt(cls, prompt: list[str]):
@@ -39,8 +41,8 @@ PROMPT_PARSER.add_argument("-sc", "--scale", type=float)
 PROMPT_PARSER.add_argument("-m", "--model", type=str)
 PROMPT_PARSER.add_argument("-t", "--template", type=str)
 PROMPT_PARSER.add_argument("-cs", "--clip_skip", type=int)
-PROMPT_PARSER.add_argument("-w", "--width", type=str)
-PROMPT_PARSER.add_argument("-h", "--height", type=str)
+PROMPT_PARSER.add_argument("-w", "--width", type=int)
+PROMPT_PARSER.add_argument("-h", "--height", type=int)
 
 class Prompt(DbModel):
     hash = CleanCharField(unique=True)
