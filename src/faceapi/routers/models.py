@@ -37,7 +37,7 @@ class PromptResponse(BaseResponse):
     width: Optional[int] = None
     height: Optional[int] = None
     negative_prompt: Optional[str] = None
-    seed: Optional[int] = None
+    seed: Optional[float] = None
     strength: Optional[float] = None
 
 
