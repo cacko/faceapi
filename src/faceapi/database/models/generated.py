@@ -26,7 +26,7 @@ from corestring import file_hash, string_hash
 
 
 class Generated(DbModel):
-    slug = CharField(unique=True)
+    slug = CharField()
     uid = CleanCharField()
     image = ForeignKeyField(Image, null=True)
     source = ForeignKeyField(Image)
@@ -110,5 +110,5 @@ class Generated(DbModel):
         order_by = ["-last_modified"]
         indexes = (
             (("uid", "slug", "last_modified"), False),
-            (("slug",), True),
+            (("slug",), False),
         )
