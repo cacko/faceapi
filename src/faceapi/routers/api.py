@@ -78,20 +78,6 @@ def get_list_response(
     return JSONResponse(content=results, headers=headers)
 
 
-# @router.get("/api/jobs", tags=["api"])
-# def list_jobs(
-#     page: int = 1,
-#     limit: int = 30,
-#     last_modified: Optional[datetime] = None,
-#     auth_user=Depends(check_auth)
-# ):
-#     return get_list_response(
-#         page=page,
-#         limit=limit,
-#         last_modified=last_modified
-#     )
-
-
 @router.get("/api/generated", tags=["api"])
 def api_generations(
     page: Annotated[int, Query()] = 1,
@@ -99,13 +85,9 @@ def api_generations(
     last_modified: Annotated[datetime, Query()] = None,
     auth_user=Depends(check_auth),
 ):
-    try:
-        with Database.db.atomic():
-            return get_list_response(
-                page=page, limit=limit, last_modified=last_modified, uid=auth_user.uid
-            )
-    except:
-        raise HTTPException(404)
+    return get_list_response(
+        page=page, limit=limit, last_modified=last_modified, uid=auth_user.uid
+    )
 
 
 @router.get("/api/generated/{slug}", tags=["api"])
