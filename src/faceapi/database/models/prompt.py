@@ -4,7 +4,7 @@ from faceapi.database.fields import CleanCharField, CleanTextField
 from .base import DbModel
 from faceapi.database import Database
 from faceapi.routers.models import PromptResponse
-from peewee import FloatField, IntegerField, IntegrityError, BigIntegerField
+from peewee import FloatField, IntegerField, IntegrityError, BigAutoField
 from corestring import split_with_quotes, string_hash
 from argparse import ArgumentParser
 from pydantic import BaseModel, validator
@@ -65,7 +65,7 @@ class Prompt(DbModel):
     width = IntegerField(null=True)
     height = IntegerField(null=True)
     strength = FloatField(null=True)
-    seed = BigIntegerField(null=True)
+    seed = BigAutoField(null=True)
 
     @classmethod
     def get_hash(cls, **kwds) -> Optional[str]:
