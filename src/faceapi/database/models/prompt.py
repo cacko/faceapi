@@ -124,6 +124,7 @@ class Prompt(DbModel):
 
     @classmethod
     def parse_prompt(cls, prompt: str) -> "Prompt":
+        logging.info(prompt)
         args = split_with_quotes(prompt)
         namespace, _ = PROMPT_PARSER.parse_known_args(args)
         params = FaceGeneratorParams(**namespace.__dict__).model_dump(exclude_none=True)
