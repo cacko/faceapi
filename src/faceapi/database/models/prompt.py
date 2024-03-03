@@ -19,7 +19,6 @@ class FaceGeneratorParams(BaseModel):
     model: Optional[str] = None
     template: Optional[str] = None
     scale: Optional[float] = None
-    strength: Optional[float] = None
     clip_skip: Optional[int] = None
     width: Optional[int] = None
     height: Optional[int] = None
@@ -47,7 +46,6 @@ PROMPT_PARSER.add_argument("-t", "--template", type=str)
 PROMPT_PARSER.add_argument("-cs", "--clip_skip", type=int)
 PROMPT_PARSER.add_argument("-w", "--width", type=int)
 PROMPT_PARSER.add_argument("-h", "--height", type=int)
-PROMPT_PARSER.add_argument("-st", "--strength", type=float)
 PROMPT_PARSER.add_argument("-s", "--seed", type=int)
 
 
@@ -63,7 +61,6 @@ class Prompt(DbModel):
     clip_skip = IntegerField(null=True)
     width = IntegerField(null=True)
     height = IntegerField(null=True)
-    strength = FloatField(null=True)
     seed = DoubleField(null=True)
 
     @classmethod
@@ -79,7 +76,6 @@ class Prompt(DbModel):
         prompt.append(kwds.get("height", ""))
         prompt.append(kwds.get("negative_prompt", ""))
         prompt.append(kwds.get("seed", ""))
-        prompt.append(kwds.get("strength", ""))
         return string_hash("-".join(map(str, filter(None, prompt))))
 
     @classmethod
