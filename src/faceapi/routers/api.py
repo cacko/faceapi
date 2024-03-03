@@ -143,11 +143,11 @@ async def api_generate(
         Image=face_path.as_posix(),
         hash=file_hash(face_path),
     )
-    print(data_json)
     prompt, _ = Prompt.get_or_create(**data_json)
     generated, _ = Generated.get_or_create(
         uid=auth_user.uid, source=source, prompt=prompt
     )
+    logging.info(f"GENERATED STATUS -> {generated.Status}")
     if generated.Status != Status.GENERATED:
         with Database.db.atomic():
             generated.Status = Status.PENDING
