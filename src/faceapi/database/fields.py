@@ -5,6 +5,7 @@ from uuid import uuid4
 from pathlib import Path
 from corefile import TempPath
 from PIL import Image
+from PIL.ImageOps import exif_transpose
 from faceapi.routers.models import ImageResponse
 from faceapi.config import app_config
 from .enums import ImageType, Status
@@ -115,6 +116,10 @@ class ImageFieldAccessor(FieldAccessor):
             image_path = Path(value)
             assert image_path.exists()
             stem = uuid4().hex
+            
+            img = Image.open(image_path.as_posix())
+            img = exif_transpose(img)
+            img.save(image_path.as_posix())
 
             raw_fname = f"{stem}.png"
             S3.upload(image_path, raw_fname)
