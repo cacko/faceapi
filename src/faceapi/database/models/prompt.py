@@ -87,6 +87,7 @@ class Prompt(DbModel):
     def get_or_create(cls, **kwargs) -> tuple["Prompt", bool]:
         defaults = kwargs.pop("defaults", {})
         query = cls.select()
+        logging.info(kwargs)
         hash = cls.get_hash(**kwargs)
         query = query.where(cls.hash == hash)
         try:
