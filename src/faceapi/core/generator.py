@@ -46,7 +46,6 @@ class Generator(StoppableThread):
                 clip_skip=prompt.clip_skip,
                 width=prompt.width,
                 height=prompt.height,
-                strength=prompt.strength,
                 seed=to_int(prompt.seed, None),
                 negative_prompt=prompt.negative_prompt
             )
