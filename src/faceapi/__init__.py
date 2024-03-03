@@ -6,10 +6,13 @@ import os
 
 
 corelog.register(
-    os.environ.get("FACE_LOG_LEVEL", "DEBUG"), handler_type=corelog.Handlers.RICH
+    os.environ.get("FACE_LOG_LEVEL", "DEBUG"), handler_type=corelog.Handlers.DEFAULT
 )
 
 import logging
-logger = logging.getLogger('peewee')
+
+logger = logging.getLogger("peewee")
 logger.addHandler(logging.StreamHandler())
-logger.setLevel(os.environ.get("FACE_LOG_LEVEL", "DEBUG"),)
+logger.setLevel(
+    os.environ.get("FACE_LOG_LEVEL", "DEBUG"),
+)
