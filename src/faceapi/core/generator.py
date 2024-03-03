@@ -47,7 +47,7 @@ class Generator(StoppableThread):
                 width=prompt.width,
                 height=prompt.height,
                 strength=prompt.strength,
-                seed=prompt.seed,
+                seed=int(prompt.seed),
                 negative_prompt=prompt.negative_prompt
             )
             result_path, result_prompt = client.result()

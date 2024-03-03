@@ -21,7 +21,6 @@ class Face2Img(Client):
             data=self.__prompt,
             attachment=self.__img_path,
         )
-        logging.info(msg)
         return (img, msg)
 
 
