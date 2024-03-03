@@ -7,7 +7,7 @@ from faceapi.database import Generated, Image, Prompt
 from faceapi.masha.face2img import Face2Img
 from queue import Empty, Queue
 from corethread import StoppableThread
-
+from corestring import to_int
 
 class Generator(StoppableThread):
 
@@ -47,7 +47,7 @@ class Generator(StoppableThread):
                 width=prompt.width,
                 height=prompt.height,
                 strength=prompt.strength,
-                seed=int(prompt.seed),
+                seed=to_int(prompt.seed, -1),
                 negative_prompt=prompt.negative_prompt
             )
             result_path, result_prompt = client.result()
