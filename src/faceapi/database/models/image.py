@@ -33,10 +33,9 @@ class Image(DbModel):
             return query.get(), False
         except cls.DoesNotExist:
             try:
-                with cls._meta.database.atomic():
-                    if defaults:
-                        kwargs.update(defaults)
-                    return cls.create(**kwargs), True
+                if defaults:
+                    kwargs.update(defaults)
+                return cls.create(**kwargs), True
             except IntegrityError as exc:
                 try:
                     return query.get(), False

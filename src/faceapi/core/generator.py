@@ -47,7 +47,7 @@ class Generator(StoppableThread):
                 width=prompt.width,
                 height=prompt.height,
                 strength=prompt.strength,
-                seed=to_int(prompt.seed, -1),
+                seed=to_int(prompt.seed, None),
                 negative_prompt=prompt.negative_prompt
             )
             result_path, result_prompt = client.result()
@@ -60,13 +60,11 @@ class Generator(StoppableThread):
                 Image=result_path.as_posix(),
                 hash=file_hash(result_path),
             )
-            with Database.db.atomic():
-                item.image = img
-                item.Status = Status.GENERATED
-                return item.save(only=["image", "Status", "prompt"])
+            item.image = img
+            item.Status = Status.GENERATED
+            return item.save(only=["image", "Status", "prompt"])
         except Exception as e:
             logging.error(str(e))
-            with Database.db.atomic():
-                item.error = str(e)
-                item.Status = Status.ERROR
-                return item.save(only=["error", "Status"])
+            item.error = str(e)
+            item.Status = Status.ERROR
+            return item.save(only=["error", "Status"])
