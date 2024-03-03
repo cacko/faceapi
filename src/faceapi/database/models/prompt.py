@@ -9,7 +9,6 @@ from corestring import split_with_quotes, string_hash
 from argparse import ArgumentParser
 from pydantic import BaseModel, validator
 import logging
-import shlex
 
 
 class FaceGeneratorParams(BaseModel):
@@ -116,7 +115,7 @@ class Prompt(DbModel):
 
     @classmethod
     def parse_prompt(cls, prompt: str) -> "Prompt":
-        args = shlex.split(prompt)
+        args = split_with_quotes(prompt)
         namespace, _ = PROMPT_PARSER.parse_known_args(args)
         params = FaceGeneratorParams(**namespace.__dict__).model_dump(exclude_none=True)
         return cls.get_or_create(**params)
