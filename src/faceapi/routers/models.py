@@ -46,7 +46,6 @@ class GeneratedReponse(BaseResponse):
     uid: str
     last_modified: AwareDatetime
     status: Status
-    deleted: bool = False
     prompt: Optional[PromptResponse] = None
     image: Optional[ImageResponse] = None
     source: Optional[ImageResponse] = None

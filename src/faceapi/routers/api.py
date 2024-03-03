@@ -118,7 +118,6 @@ def api_generated_delete(
             .where(
                 (Generated.slug == slug)
                 & (Generated.uid == auth_user.uid)
-                & (Generated.deleted == False)
             )
             .get()
         )
@@ -148,12 +147,14 @@ async def api_generate(
         uid=auth_user.uid, source=source, prompt=prompt
     )
     logging.info(f"GENERATED STATUS -> {generated.Status}")
-    if generated.Status != Status.GENERATED:
-        with Database.db.atomic():
-            generated.Status = Status.PENDING
-            generated.save(only=["Status"])
+    if generated.Status == Status.GENERATED:
+        return generated.to_response().model_dump()
+
+    with Database.db.atomic():
+        generated.Status = Status.PENDING
+        generated.save(only=["Status"])
         GeneratorQueue().put_nowait((Command.GENERATE, generated.slug))
-    return generated.to_response().model_dump()
+        return generated.to_response().model_dump()
 
 
 @router.get("/api/options", tags=["api"])

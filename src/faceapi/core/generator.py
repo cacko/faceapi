@@ -28,7 +28,7 @@ class Generator(StoppableThread):
         try:
             item: Generated = (
                 Generated.select(Generated)
-                .where((Generated.slug == slug) & (Generated.deleted == False))
+                .where((Generated.slug == slug))
                 .get()
             )
             with Database.db.atomic():

@@ -1,6 +1,8 @@
+from enum import unique
 from pathlib import Path
 
 from attr import has
+from numpy import unicode_
 from .base import DbModel
 from faceapi.database import Database
 from faceapi.database.fields import ImageTypeField, ImageField
@@ -15,18 +17,17 @@ import datetime
 
 
 class Image(DbModel):
-    hash = CharField()
+    hash = CharField(unique=True)
     Type = ImageTypeField()
     Image = ImageField()
     last_modified = DateTimeField(default=datetime.datetime.now)
-    deleted = BooleanField(default=False)
 
     @classmethod
     def get_or_create(cls, **kwargs) -> tuple["Image", bool]:
         defaults = kwargs.pop("defaults", {})
         query = cls.select()
         hash = kwargs.get("hash")
-        query = query.where((cls.hash == hash) & (cls.deleted == False))
+        query = query.where((cls.hash == hash))
 
         try:
             return query.get(), False
@@ -41,11 +42,6 @@ class Image(DbModel):
                     return query.get(), False
                 except cls.DoesNotExist:
                     raise exc
-
-    def delete_instance(self, recursive=False, delete_nullable=False):
-        self.deleted = True
-        self.last_modified = datetime.datetime.now(tz=datetime.timezone.utc)
-        self.save(only=["deleted", "last_modified"])
 
     def save(self, *args, **kwds):
         if "only" not in kwds:

@@ -1,3 +1,4 @@
+from enum import unique
 import logging
 from typing import Optional
 from faceapi.database.enums import Status
@@ -26,7 +27,7 @@ from corestring import file_hash, string_hash
 
 
 class Generated(DbModel):
-    slug = CharField()
+    slug = CharField(unique=True)
     uid = CleanCharField()
     image = ForeignKeyField(Image, null=True)
     source = ForeignKeyField(Image)
@@ -34,7 +35,6 @@ class Generated(DbModel):
     last_modified = DateTimeField(default=datetime.datetime.now)
     Status = StatusField(default=Status.PENDING)
     error = CleanCharField(null=True)
-    deleted = BooleanField(default=False)
 
     @classmethod
     def get_slug(cls, **kwds) -> Optional[str]:
@@ -53,7 +53,7 @@ class Generated(DbModel):
         defaults = kwargs.pop("defaults", {})
         query = cls.select()
         slug = cls.get_slug(**kwargs)
-        query = query.where((cls.slug == slug) & (cls.deleted == False))
+        query = query.where((cls.slug == slug))
 
         try:
             return query.get(), False
@@ -74,15 +74,6 @@ class Generated(DbModel):
         query["slug"] = cls.get_slug(**query)
         return super().create(**query)
 
-    def delete_instance(self, recursive=False, delete_nullable=False):
-        self.deleted = True
-        self.save(only=["deleted"])
-        try:
-            self.image.delete_instance()
-        except Exception:
-            pass
-        self.source.delete_instance()
-
     def save(self, *args, **kwds):
         self.last_modified = datetime.datetime.now(tz=datetime.timezone.utc)
         ret = super().save(*args, **kwds)
@@ -98,7 +89,6 @@ class Generated(DbModel):
             image=self.image.to_response() if self.image else None,
             source=self.source.to_response() if self.source else None,
             last_modified=self.last_modified,
-            deleted=self.deleted,
             status=self.Status,
             error=self.error,
             **kwds,
@@ -110,5 +100,5 @@ class Generated(DbModel):
         order_by = ["-last_modified"]
         indexes = (
             (("uid", "slug", "last_modified"), False),
-            (("slug",), False),
+            (("slug",), True),
         )
