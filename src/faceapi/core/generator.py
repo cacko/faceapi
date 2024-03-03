@@ -39,13 +39,16 @@ class Generator(StoppableThread):
                 img_path=item.source.tmp_path,
                 template=prompt.template,
                 model=prompt.model,
-                prompt=item.prompt.prompt,
+                prompt=prompt.prompt,
                 num_inference_steps=prompt.num_inference_steps,
                 guidance_scale=prompt.guidance_scale,
                 scale=prompt.scale,
                 clip_skip=prompt.clip_skip,
                 width=prompt.width,
                 height=prompt.height,
+                strength=prompt.strength,
+                seed=prompt.seed,
+                negative_prompt=prompt.negative_prompt
             )
             result_path, result_prompt = client.result()
             assert result_path
