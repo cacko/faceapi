@@ -11,7 +11,7 @@ class Authorization:
         try:
             client = request.client
             assert client
-            logging.info(f"auth -> {client.host}")
+            logging.debug(f"auth -> {client.host}")
             token = request.headers.get("x-user-token", "")
             logging.debug(f"token from header {token}")
             assert token
