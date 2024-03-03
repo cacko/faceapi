@@ -6,7 +6,7 @@ import os
 
 
 corelog.register(
-    os.environ.get("FACE_LOG_LEVEL", "DEBUG"), handler_type=corelog.Handlers.DEFAULT
+    os.environ.get("FACE_LOG_LEVEL", "INFO"), handler_type=corelog.Handlers.RICH
 )
 
 import logging
@@ -14,5 +14,5 @@ import logging
 logger = logging.getLogger("peewee")
 logger.addHandler(logging.StreamHandler())
 logger.setLevel(
-    os.environ.get("FACE_LOG_LEVEL", "DEBUG"),
+    os.environ.get("FACE_LOG_LEVEL", "INFO"),
 )
