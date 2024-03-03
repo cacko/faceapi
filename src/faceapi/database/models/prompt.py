@@ -31,6 +31,14 @@ class FaceGeneratorParams(BaseModel):
             return " ".join(prompt)
         except AssertionError:
             return ""
+        
+    @validator("negative_prompt")
+    def static_negative_prompt(cls, prompt: Optional[str] = None):
+        try:
+            assert prompt
+            return prompt.strip("'")
+        except AssertionError:
+            return prompt
 
 
 PROMPT_PARSER = ArgumentParser(
