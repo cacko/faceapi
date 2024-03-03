@@ -79,6 +79,10 @@ class Generated(DbModel):
         fdb = GeneerationDb(uid=self.uid)
         fdb.status(slug=self.slug, status=self.Status)
         return ret
+    
+    def delete_instance(self, recursive: bool = ..., delete_nullable: bool = ...):
+        GeneerationDb(uid=self.uid).remove(self.slug)
+        return super().delete_instance(recursive, delete_nullable)
 
     def to_response(self, **kwds):
         return GeneratedReponse(
