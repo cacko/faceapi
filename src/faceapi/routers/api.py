@@ -155,11 +155,3 @@ async def api_generate(
         generated.save(only=["Status"])
         GeneratorQueue().put_nowait((Command.GENERATE, generated.slug))
         return generated.to_response().model_dump()
-
-
-@router.get("/api/options", tags=["api"])
-def api_options(
-    auth_user=Depends(check_auth),
-):
-    api = Face2ImgOptions()
-    return api.result()
