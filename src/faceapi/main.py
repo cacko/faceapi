@@ -3,6 +3,7 @@ import os
 from fastapi import FastAPI
 
 from faceapi.core.queue import GeneratorQueue
+from faceapi.core.scheduler import Scheduler
 from faceapi.database.database import Database
 from .routers import api
 from fastapi.middleware.cors import CORSMiddleware
@@ -12,7 +13,8 @@ from fastapi.staticfiles import StaticFiles
 from pathlib import Path
 from faceapi.core.generator import Generator
 import signal
-
+from apscheduler.schedulers.background import BackgroundScheduler
+from faceapi.core.jobs import update_options
 
 ASSETS_PATH = Path(__file__).parent.parent / "assets"
 
@@ -67,10 +69,26 @@ queue = GeneratorQueue()
 generator_worker = Generator(queue=queue)
 generator_worker.start()
 
+scheduler = Scheduler(BackgroundScheduler(), app_config.redis.url)
+
+Scheduler.add_job(
+    id="update_options",
+    func=update_options,
+    trigger="interval",
+    minutes=60,
+    misfire_grace_time=900,
+    max_instances=1,
+    coalesce=True,
+    replace_existing=True,
+)
+
+Scheduler.start()
+
 
 def handler_stop_signals(signum, frame):
     generator_worker.stop()
     Database.db.close_all()
+    Scheduler.stop()
     server.shutdown()
     raise RuntimeError
 

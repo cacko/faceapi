@@ -65,6 +65,14 @@ def init_db():
         create_tables(drop=True)
     except AssertionError:
         logging.info("ignored")
+        
+
+@cli.command()
+def update_options():
+    try:
+        update_options()
+    except AssertionError:
+        logging.info("ignored")
 
 
 @cli.command()

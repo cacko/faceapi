@@ -29,6 +29,9 @@ class DbConfig(BaseModel):
     url: str
 
 
+class RedisConfig(BaseModel):
+    url: str
+
 class FirebaseConfig(BaseModel):
     admin_json: str
     db: str
@@ -72,6 +75,7 @@ class YamlConfigSettingsSource(PydanticBaseSettingsSource):
 
 class Settings(BaseSettings):
     db: DbConfig
+    redis: RedisConfig
     api: ApiConfig
     aws: AWSConfig
     firebase: FirebaseConfig

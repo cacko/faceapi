@@ -20,11 +20,21 @@ class GeneerationDb(object):
     def status(self, slug: str, status: Status):
         status_ref = self.root_ref.child(slug)
         return status_ref.set(dict(status=status.value))
-    
+
     def remove(self, slug: str):
         status_ref = self.root_ref.child(slug)
         return status_ref.delete()
 
-
     def get_listener(self, slug, callback):
         return self.root_ref.child(slug).listen(callback)
+
+
+class OptionsDb(object):
+
+    @property
+    def root_ref(self):
+        return db.reference(f"app/")
+
+    def options(self, models: list[str], templates: list[str]):
+        options_ref = self.root_ref.child("options")
+        return options_ref.set(dict(models=models, templates=templates))
