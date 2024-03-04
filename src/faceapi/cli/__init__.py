@@ -16,7 +16,7 @@ from corestring import file_hash
 from faceapi.core.queue import GeneratorQueue
 from threading import Event as TEvent
 from contextlib import contextmanager
-
+from faceapi.core.jobs import update_options as job_update_options
 
 cli = typer.Typer()
 
@@ -70,7 +70,7 @@ def init_db():
 @cli.command()
 def update_options():
     try:
-        update_options()
+        job_update_options()
     except AssertionError:
         logging.info("ignored")
 
