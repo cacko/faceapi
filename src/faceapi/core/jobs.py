@@ -13,5 +13,5 @@ def update_options():
     
 
 def update_access():
-    AccessDb().access(app_config.access.model_dump())
+    AccessDb().access(**app_config.access.model_dump())
     
