@@ -35,7 +35,9 @@ class RedisConfig(BaseModel):
 class FirebaseConfig(BaseModel):
     admin_json: str
     db: str
-
+    
+class AccessConfig(BaseModel):
+    nsfw: list[str]
 
 class ApiConfig(BaseModel):
     host: str
@@ -80,6 +82,7 @@ class Settings(BaseSettings):
     aws: AWSConfig
     firebase: FirebaseConfig
     masha: MashaConfig
+    access: AccessConfig
 
     @classmethod
     def settings_customise_sources(

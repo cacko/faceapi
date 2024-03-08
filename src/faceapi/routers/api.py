@@ -1,3 +1,4 @@
+from functools import reduce
 import logging
 from math import ceil, floor
 from typing import Annotated, Optional
@@ -115,10 +116,7 @@ def api_generated_delete(
     try:
         record: Generated = (
             Generated.select(Generated)
-            .where(
-                (Generated.slug == slug)
-                & (Generated.uid == auth_user.uid)
-            )
+            .where((Generated.slug == slug) & (Generated.uid == auth_user.uid))
             .get()
         )
         with Database.db.atomic():
@@ -155,3 +153,19 @@ async def api_generate(
         generated.save(only=["Status"])
         GeneratorQueue().put_nowait((Command.GENERATE, generated.slug))
         return generated.to_response().model_dump()
+
+
+@router.get("/api/access/", tags=["api"])
+def api_access(auth_user=Depends(check_auth)):
+    try:
+        access = app_config.access.model_dump()
+        return reduce(
+            lambda res, topic: [
+                *res,
+                *([topic] if auth_user.uid in access[topic] else []),
+            ],
+            access.keys(),
+            [],
+        )
+    except AssertionError:
+        raise HTTPException(404)

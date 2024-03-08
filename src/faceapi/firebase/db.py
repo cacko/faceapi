@@ -35,6 +35,17 @@ class OptionsDb(object):
     def root_ref(self):
         return db.reference(f"app/")
 
-    def options(self, models: list[str], templates: list[str]):
+    def options(self, **kwds):
         options_ref = self.root_ref.child("options")
-        return options_ref.set(dict(models=models, templates=templates))
+        return options_ref.set(kwds)
+
+
+class AccessDb(object):
+
+    @property
+    def root_ref(self):
+        return db.reference(f"app/")
+
+    def access(self, **kwds):
+        options_ref = self.root_ref.child("access")
+        return options_ref.set(kwds)

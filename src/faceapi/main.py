@@ -14,7 +14,7 @@ from pathlib import Path
 from faceapi.core.generator import Generator
 import signal
 from apscheduler.schedulers.background import BackgroundScheduler
-from faceapi.core.jobs import update_options
+from faceapi.core.jobs import update_options, update_access
 
 ASSETS_PATH = Path(__file__).parent.parent / "assets"
 
@@ -74,6 +74,17 @@ scheduler = Scheduler(BackgroundScheduler(), app_config.redis.url)
 Scheduler.add_job(
     id="update_options",
     func=update_options,
+    trigger="interval",
+    minutes=60,
+    misfire_grace_time=900,
+    max_instances=1,
+    coalesce=True,
+    replace_existing=True,
+)
+
+Scheduler.add_job(
+    id="update_access",
+    func=update_access,
     trigger="interval",
     minutes=60,
     misfire_grace_time=900,

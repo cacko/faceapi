@@ -17,6 +17,7 @@ from faceapi.core.queue import GeneratorQueue
 from threading import Event as TEvent
 from contextlib import contextmanager
 from faceapi.core.jobs import update_options as job_update_options
+from faceapi.core.jobs import update_access as job_update_access
 
 cli = typer.Typer()
 
@@ -74,6 +75,14 @@ def update_options():
     except AssertionError:
         logging.info("ignored")
 
+
+
+@cli.command()
+def update_access():
+    try:
+        job_update_access()
+    except AssertionError:
+        logging.info("ignored")
 
 @cli.command()
 def generate(
