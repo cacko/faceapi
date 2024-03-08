@@ -1,5 +1,4 @@
 import logging
-from xml.dom.pulldom import PullDOM
 from faceapi.firebase.db import OptionsDb, AccessDb
 from faceapi.masha.face2img import Face2ImgOptions
 from faceapi.config import app_config 

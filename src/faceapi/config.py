@@ -37,7 +37,7 @@ class FirebaseConfig(BaseModel):
     db: str
     
 class AccessConfig(BaseModel):
-    nsfw: list[str]
+    nsfw: list[any]
 
 class ApiConfig(BaseModel):
     host: str
