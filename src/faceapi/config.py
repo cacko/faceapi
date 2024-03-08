@@ -36,7 +36,7 @@ class FirebaseConfig(BaseModel):
     admin_json: str
     db: str
     
-class AccessConfig(BaseModel):
+class AccessConfig(BaseModel, arbitrary_types_allowed=True):
     nsfw: list[any]
 
 class ApiConfig(BaseModel):
