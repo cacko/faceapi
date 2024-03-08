@@ -36,8 +36,8 @@ class FirebaseConfig(BaseModel):
     admin_json: str
     db: str
     
-class AccessConfig(BaseModel, arbitrary_types_allowed=True):
-    nsfw: dict[any]
+class AccessConfig(BaseModel):
+    nsfw: dict[str, str]
 
 class ApiConfig(BaseModel):
     host: str
