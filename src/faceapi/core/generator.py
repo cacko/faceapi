@@ -23,6 +23,10 @@ class Generator(StoppableThread):
                 self.queue.task_done()
             except Empty:
                 time.sleep(1)
+            except Exception as e:
+                logging.exception(e)
+                time.sleep(2)
+                
 
     def __generate(self, slug: str):
         try:
