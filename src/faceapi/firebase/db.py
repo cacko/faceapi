@@ -20,7 +20,7 @@ class GeneerationDb(object):
 
     def status(self, slug: str, status: Status, last_modified: datetime):
         status_ref = self.root_ref.child(slug)
-        return status_ref.set(dict(status=status.value, last_modified=last_modified))
+        return status_ref.set(dict(status=status.value, last_modified=last_modified.isoformat()))
 
     def remove(self, slug: str):
         status_ref = self.root_ref.child(slug)
