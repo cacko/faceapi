@@ -10,6 +10,7 @@ from .base import DbModel
 from faceapi.database import Database
 from faceapi.database.fields import (
     CleanCharField,
+    CleanTextField,
     StatusField,
 )
 from peewee import (
@@ -34,7 +35,7 @@ class Generated(DbModel):
     prompt = ForeignKeyField(Prompt)
     last_modified = DateTimeField(default=datetime.datetime.now)
     Status = StatusField(default=Status.PENDING)
-    error = CleanCharField(null=True)
+    error = CleanTextField(null=True)
 
     @classmethod
     def get_slug(cls, **kwds) -> Optional[str]:
