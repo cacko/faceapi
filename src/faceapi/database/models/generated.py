@@ -76,6 +76,8 @@ class Generated(DbModel):
 
     def save(self, *args, **kwds):
         self.last_modified = datetime.datetime.now(tz=datetime.timezone.utc)
+        if 'only' in kwds:
+            kwds['only'].append('last_modified')
         ret = super().save(*args, **kwds)
         fdb = GeneerationDb(uid=self.uid)
         fdb.status(slug=self.slug, status=self.Status, last_modified=self.last_modified)
