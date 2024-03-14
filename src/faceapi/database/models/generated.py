@@ -78,7 +78,7 @@ class Generated(DbModel):
         self.last_modified = datetime.datetime.now(tz=datetime.timezone.utc)
         ret = super().save(*args, **kwds)
         fdb = GeneerationDb(uid=self.uid)
-        fdb.status(slug=self.slug, status=self.Status)
+        fdb.status(slug=self.slug, status=self.Status, last_modified=self.last_modified)
         return ret
     
     def delete_instance(self, recursive: bool = ..., delete_nullable: bool = ...):

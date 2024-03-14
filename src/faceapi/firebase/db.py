@@ -1,3 +1,4 @@
+from datetime import datetime
 import logging
 from typing import Any, Optional
 
@@ -17,9 +18,9 @@ class GeneerationDb(object):
     def root_ref(self):
         return db.reference(f"generation/{self.__uid}")
 
-    def status(self, slug: str, status: Status):
+    def status(self, slug: str, status: Status, last_modified: datetime):
         status_ref = self.root_ref.child(slug)
-        return status_ref.set(dict(status=status.value))
+        return status_ref.set(dict(status=status.value, last_modified=last_modified))
 
     def remove(self, slug: str):
         status_ref = self.root_ref.child(slug)
