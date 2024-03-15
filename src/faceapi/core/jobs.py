@@ -1,4 +1,7 @@
 import logging
+
+from click import Command
+from faceapi.core.queue import GeneratorQueue
 from faceapi.database.models.generated import Generated
 from faceapi.firebase.db import OptionsDb, AccessDb
 from faceapi.masha.face2img import Face2ImgOptions
@@ -25,4 +28,5 @@ def resume_generations():
         Generated.Status.in_([Status.PENDING, Status.IN_PROGRESS])
     ).order_by(Generated.last_modified.asc())
     for record in query:
-        print(record)
+        GeneratorQueue().put_nowait((Command.GENERATE, record.slug))
+
