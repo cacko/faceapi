@@ -24,5 +24,5 @@ def resume_generations():
     query = base_query.where(
         Generated.Status.in_([Status.PENDING, Status.IN_PROGRESS])
     ).order_by(Generated.last_modified.asc())
-    for slug in query:
+    for slug in query.get():
         print(slug)
