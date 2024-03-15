@@ -1,6 +1,6 @@
 import logging
 
-from click import Command
+from faceapi.core.commands import Command
 from faceapi.core.queue import GeneratorQueue
 from faceapi.database.models.generated import Generated
 from faceapi.firebase.db import OptionsDb, AccessDb
