@@ -20,9 +20,9 @@ def update_access():
 
 def resume_generations():
 
-    base_query = Generated.select(Generated.slug)
+    base_query = Generated.select()
     query = base_query.where(
         Generated.Status.in_([Status.PENDING, Status.IN_PROGRESS])
     ).order_by(Generated.last_modified.asc())
-    for slug in query.get():
-        print(slug)
+    for record in query:
+        print(record)
