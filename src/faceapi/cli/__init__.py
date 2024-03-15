@@ -18,6 +18,7 @@ from threading import Event as TEvent
 from contextlib import contextmanager
 from faceapi.core.jobs import update_options as job_update_options
 from faceapi.core.jobs import update_access as job_update_access
+from faceapi.core.jobs import resume_generations as job_resume_generations
 
 cli = typer.Typer()
 
@@ -75,6 +76,10 @@ def update_options():
     except AssertionError:
         logging.info("ignored")
 
+
+@cli.command()
+def resume():
+    job_resume_generations()
 
 
 @cli.command()
