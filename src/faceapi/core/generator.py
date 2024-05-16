@@ -56,6 +56,7 @@ class Generator(StoppableThread):
             )
             result_path, result_prompt = client.result()
             assert result_path
+            logging.info(result_prompt)
             if result_prompt:
                 new_prompt, _ = Prompt.parse_prompt(result_prompt)
                 item.prompt = new_prompt

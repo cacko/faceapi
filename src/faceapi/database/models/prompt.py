@@ -55,7 +55,7 @@ PROMPT_PARSER.add_argument("-cs", "--clip_skip", type=int)
 PROMPT_PARSER.add_argument("-w", "--width", type=int)
 PROMPT_PARSER.add_argument("-h", "--height", type=int)
 PROMPT_PARSER.add_argument("-s", "--seed", type=int)
-
+PROMPT_PARSER.add_argument("-st", "--strength", type=float)
 
 class Prompt(DbModel):
     hash = CleanCharField(unique=True)
@@ -70,6 +70,7 @@ class Prompt(DbModel):
     width = IntegerField(null=True)
     height = IntegerField(null=True)
     seed = DoubleField(null=True)
+    strength=DoubleField(null=True)
 
     @classmethod
     def get_hash(cls, **kwds) -> Optional[str]:
@@ -84,6 +85,7 @@ class Prompt(DbModel):
         prompt.append(kwds.get("height", ""))
         prompt.append(kwds.get("negative_prompt", ""))
         prompt.append(kwds.get("seed", ""))
+        prompt.append(kwds.get("strength", ""))
         return string_hash("-".join(map(str, filter(None, prompt))))
 
     @classmethod
