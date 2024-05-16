@@ -23,6 +23,7 @@ class FaceGeneratorParams(BaseModel):
     width: Optional[int] = None
     height: Optional[int] = None
     seed: Optional[int] = None
+    strength: Optional[float] = None
 
     @validator("prompt")
     def static_prompt(cls, prompt: list[str]):
@@ -70,7 +71,7 @@ class Prompt(DbModel):
     width = IntegerField(null=True)
     height = IntegerField(null=True)
     seed = DoubleField(null=True)
-    strength=DoubleField(null=True)
+    strength=FloatField(null=True)
 
     @classmethod
     def get_hash(cls, **kwds) -> Optional[str]:
