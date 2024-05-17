@@ -21,7 +21,7 @@ ASSETS_PATH = Path(__file__).parent.parent / "assets"
 
 def create_app():
     app = FastAPI(
-        title="jobs@cacko.net",
+        title="face@cacko.net",
         docs_url="/api/docs",
         openapi_url="/api/openapi.json",
         redoc_url="/api/redoc",
