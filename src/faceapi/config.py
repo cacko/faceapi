@@ -45,6 +45,7 @@ class ApiConfig(BaseModel):
     assets: str
     workers: Optional[int] = Field(default=1)
     web_host: Optional[str] = Field(default="https://face-api.cacko.net")
+    loop: str = Field(default="auto")
 
 
 class AWSConfig(BaseModel):

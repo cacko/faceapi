@@ -61,6 +61,7 @@ server_config = uvicorn.Config(
     port=app_config.api.port,
     use_colors=True,
     workers=app_config.api.workers,
+    loop=app_config.api.loop,
     log_level=logging._nameToLevel.get(os.environ.get("FACE_LOG_LEVEL", "INFO")),
 )
 server = uvicorn.Server(server_config)
