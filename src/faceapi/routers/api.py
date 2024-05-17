@@ -13,6 +13,7 @@ from fastapi import (
     Depends,
     UploadFile,
 )
+from sympy import im
 from faceapi.core.commands import Command
 from faceapi.core.queue import GeneratorQueue
 from faceapi.database.database import Database
@@ -28,6 +29,7 @@ from .auth import check_auth
 from faceapi.config import app_config
 from corestring import file_hash
 from faceapi.core.api import uploaded_file
+from faceapi.core.image import download_image
 import json
 
 router = APIRouter()
@@ -129,12 +131,18 @@ def api_generated_delete(
 
 @router.post("/api/generate", tags=["api"])
 async def api_generate(
-    file: Annotated[UploadFile, File()],
     data: Annotated[str, Form()],
+    file: Annotated[UploadFile, File()] = None,
     auth_user=Depends(check_auth),
 ):
-    face_path = await uploaded_file(file)
+    face_path = None
     data_json = json.loads(data)
+    try:
+        assert file
+        face_path = await uploaded_file(file)
+    except AssertionError:
+        image_url = data_json.get("image_url")
+        face_path = download_image(image_url)
     source, _ = Image.get_or_create(
         Type=ImageType.SOURCE,
         Image=face_path.as_posix(),
