@@ -1,13 +1,11 @@
 from pathlib import Path
 import time
-from click import pass_context
 from rich import print
 import typer
 from faceapi.core.commands import Command
 from faceapi.database.enums import ImageType, Status
 from faceapi.firebase.db import GeneerationDb
 from firebase_admin.db import Event
-from faceapi.main import serve
 from faceapi.database import Generated, Image, Prompt, create_tables
 from typing_extensions import Annotated
 from coreimage.terminal import print_term_image
@@ -15,7 +13,6 @@ import logging
 from corestring import file_hash
 from faceapi.core.queue import GeneratorQueue
 from threading import Event as TEvent
-from contextlib import contextmanager
 from faceapi.core.jobs import update_options as job_update_options
 from faceapi.core.jobs import update_access as job_update_access
 from faceapi.core.jobs import resume_generations as job_resume_generations
@@ -53,12 +50,6 @@ class listener:
                 self.event.clear()
             case Status.GENERATED:
                 self.event.clear()
-
-
-@cli.command()
-def serve_api():
-    serve()
-
 
 @cli.command()
 def init_db():

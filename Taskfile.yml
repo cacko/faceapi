@@ -61,7 +61,9 @@ tasks:
     desc: systemd exec
     dir: src/
     cmds:
-      - direnv exec . mamba run --live-stream -n {{.PROJECT}} python -m {{.PROJECT}}.cli serve-api
+      - direnv exec . mamba run --live-stream -n {{.PROJECT}} gunicorn 'faceapi.main:create_app()' --workers 4 --worker-class uvicorn.workers.UvicornWorker --bind 0.0.0.0:23726 --timeout 0 
+
+
 
   export:
     desc: export env
