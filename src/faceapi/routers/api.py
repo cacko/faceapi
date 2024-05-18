@@ -142,6 +142,7 @@ async def api_generate(
         face_path = await uploaded_file(file)
     except AssertionError:
         image_url = data_json.get("image_url")
+        del data_json["image_url"]
         face_path = download_image(image_url)
         logging.warn(f"fetching file from {image_url}")
     source, _ = Image.get_or_create(
