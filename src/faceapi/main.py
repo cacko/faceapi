@@ -95,7 +95,7 @@ def handler_stop_signals(signum, frame):
     Database.db.close_all()
     Scheduler.stop()
     shutdown_event.set()
-    raise RuntimeErrortask l
+    raise RuntimeError
 
 
 signal.signal(signal.SIGINT, handler_stop_signals)
