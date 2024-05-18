@@ -143,12 +143,14 @@ async def api_generate(
     except AssertionError:
         image_url = data_json.get("image_url")
         face_path = download_image(image_url)
+        logging.warn(f"fetching file from {image_url}")
     source, _ = Image.get_or_create(
         Type=ImageType.SOURCE,
         Image=face_path.as_posix(),
         hash=file_hash(face_path),
     )
     prompt, _ = Prompt.get_or_create(**data_json)
+    logging.warning(prompt)
     generated, _ = Generated.get_or_create(
         uid=auth_user.uid, source=source, prompt=prompt
     )
