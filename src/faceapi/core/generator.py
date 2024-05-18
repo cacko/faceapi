@@ -69,6 +69,7 @@ class Generator(StoppableThread):
             item.Status = Status.GENERATED
             return item.save(only=["image", "Status", "prompt"])
         except Exception as e:
+            logging.exception(e)
             logging.error(str(e))
             item.error = str(e)
             item.Status = Status.ERROR
