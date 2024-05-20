@@ -1,10 +1,6 @@
 import logging
 import os
 from fastapi import FastAPI
-import asyncio
-from hypercorn import Config
-import uvloop
-from hypercorn.asyncio import serve as hyper_serve
 from faceapi.core.queue import GeneratorQueue
 from faceapi.core.scheduler import Scheduler
 from faceapi.database.database import Database
