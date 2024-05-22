@@ -137,6 +137,7 @@ async def api_generate(
 ):
     face_path = None
     data_json = json.loads(data)
+    reuse = True
     try:
         assert file
         face_path = await uploaded_file(file)
@@ -144,6 +145,7 @@ async def api_generate(
         image_url = data_json.get("image_url")
         del data_json["image_url"]
         face_path = download_image(image_url)
+        reuse = False
         logging.warn(f"fetching file from {image_url}")
     source, _ = Image.get_or_create(
         Type=ImageType.SOURCE,
@@ -156,7 +158,7 @@ async def api_generate(
         uid=auth_user.uid, source=source, prompt=prompt
     )
     logging.info(f"GENERATED STATUS -> {generated.Status}")
-    if generated.Status == Status.GENERATED:
+    if all([reuse, generated.Status == Status.GENERATED]):
         return generated.to_response().model_dump()
 
     with Database.db.atomic():
