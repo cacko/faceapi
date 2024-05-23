@@ -61,7 +61,7 @@ tasks:
     desc: systemd exec
     dir: src/
     cmds:
-      - direnv exec . mamba run --live-stream -n {{.PROJECT}} uvicorn 'faceapi.main:create_app' --host 0.0.0.0 --port 43541 --workers 4  --log-level debug --use-colors --factory
+      - direnv exec . mamba run --live-stream -n {{.PROJECT}} uvicorn 'faceapi.main:create_app' --host 0.0.0.0 --port 43541 --log-level info --use-colors --factory
 
 
   export:
