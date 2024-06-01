@@ -146,7 +146,8 @@ async def api_generate(
         del data_json["image_url"]
         face_path = download_image(image_url)
         reuse = False
-        data_json.setdefault("seed", -1)
+        if not data_json.get("seed", None):
+            data_json["seed"] = -1
         logging.warn(f"fetching file from {image_url}")
     source, _ = Image.get_or_create(
         Type=ImageType.SOURCE,
