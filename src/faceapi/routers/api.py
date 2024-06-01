@@ -157,15 +157,15 @@ async def api_generate(
     generated, _ = Generated.get_or_create(
         uid=auth_user.uid, source=source, prompt=prompt
     )
-    logging.info(f"GENERATED STATUS -> {generated.Status}")
+    logging.info(f"GENERATED STATUS -> {generated.Status}, reuse={reuse}")
     if all([reuse, generated.Status == Status.GENERATED]):
         return generated.to_response().model_dump()
 
     with Database.db.atomic():
         generated.Status = Status.PENDING
         generated.save(only=["Status"])
-        GeneratorQueue().put_nowait((Command.GENERATE, generated.slug))
-        return generated.to_response().model_dump()
+    GeneratorQueue().put_nowait((Command.GENERATE, generated.slug))
+    return generated.to_response().model_dump()
 
 
 @router.get("/api/access/", tags=["api"])

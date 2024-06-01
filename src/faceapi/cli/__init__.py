@@ -79,6 +79,15 @@ def update_access():
         job_update_access()
     except AssertionError:
         logging.info("ignored")
+        
+@cli.command()
+def sync():
+    for rec in Generated.select():
+        GeneerationDb(rec.uid).status(
+            slug=rec.slug,
+            status=rec.Status,
+            last_modified=rec.last_modified
+        )
 
 @cli.command()
 def generate(
