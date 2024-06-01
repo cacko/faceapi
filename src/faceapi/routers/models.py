@@ -12,7 +12,7 @@ class BaseResponse(BaseModel):
         for k, v in kwds.items():
             match v:
                 case datetime():
-                    kwds[k] = v.astimezone(tz=timezone.utc)
+                    kwds[k] = v.replace(tzinfo=timezone.utc)
         super().__init__(*args, **kwds)
 
     def model_dump(self, *args, **kwds):
