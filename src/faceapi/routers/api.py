@@ -164,6 +164,7 @@ async def api_generate(
     with Database.db.atomic():
         generated.Status = Status.PENDING
         generated.save(only=["Status"])
+    logging.info(f"GENERATED STATUS -> {generated.Status}, reuse={reuse}")
     GeneratorQueue().put_nowait((Command.GENERATE, generated.slug))
     return generated.to_response().model_dump()
 
