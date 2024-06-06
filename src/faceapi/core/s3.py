@@ -47,7 +47,7 @@ class S3(object, metaclass=S3Meta):
                 key,
                 ExtraArgs={"ContentType": mime, "ACL": "public-read"},
             )
-            logging.debug(res)
+            logging.warning(res)
         return key
 
     def download_file(self, key: str, dst: Path = None) -> Path:
@@ -60,7 +60,7 @@ class S3(object, metaclass=S3Meta):
             Key=key,
             Filename=dst.as_posix()
         )
-        logging.debug(res)
+        logging.warning(res)
         return dst
 
     def delete_file(self, file_name: str) -> bool:
