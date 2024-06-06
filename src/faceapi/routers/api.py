@@ -106,7 +106,7 @@ def api_generated(
             assert record
             response = record.to_response()
             return response.model_dump()
-    except (AssertionError, GeneratedD):
+    except (AssertionError, DoesNotExist):
         raise HTTPException(404)
 
 
