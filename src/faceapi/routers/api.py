@@ -154,6 +154,7 @@ async def api_generate(
         Image=face_path.as_posix(),
         hash=file_hash(face_path),
     )
+    logging.warning(source)
     prompt, _ = Prompt.get_or_create(**data_json)
     logging.warning(prompt)
     generated, _ = Generated.get_or_create(
