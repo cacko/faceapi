@@ -1,4 +1,5 @@
 import logging
+from typing import Optional
 from apscheduler.jobstores.redis import RedisJobStore
 from apscheduler.schedulers.background import BackgroundScheduler
 from urllib.parse import urlparse, parse_qs
@@ -9,7 +10,7 @@ class RedisNotConfiguredException(Exception):
 
 
 class SchedulerMeta(type):
-    _instance = None
+    _instance: Optional['Scheduler'] = None
 
     def __call__(cls, *args, **kwargs):
         if not cls._instance:
@@ -20,6 +21,10 @@ class SchedulerMeta(type):
         assert cls._instance
         logging.info(">> SCHEDULER start")
         cls._instance._scheduler.start()
+    
+    @property
+    def is_running(cls) -> bool:
+        return cls._instance._scheduler.running
 
     def stop(cls):
         try:
@@ -52,7 +57,6 @@ class SchedulerMeta(type):
 class Scheduler(object, metaclass=SchedulerMeta):
 
     _scheduler: BackgroundScheduler
-    _instance = None
 
     def __init__(self, scheduler: BackgroundScheduler, url: str) -> None:
         self._scheduler = scheduler
