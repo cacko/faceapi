@@ -24,7 +24,6 @@ from datetime import datetime
 from peewee import DoesNotExist
 
 from faceapi.database.models.prompt import Prompt
-from faceapi.masha.face2img import Face2ImgOptions
 from .auth import check_auth
 from faceapi.config import app_config
 from corestring import file_hash
@@ -107,7 +106,7 @@ def api_generated(
             assert record
             response = record.to_response()
             return response.model_dump()
-    except AssertionError:
+    except (AssertionError, GeneratedD):
         raise HTTPException(404)
 
 
