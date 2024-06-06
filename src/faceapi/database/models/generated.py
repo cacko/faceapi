@@ -21,10 +21,9 @@ from peewee import (
     ForeignKeyField,
 )
 import datetime
-
+from playhouse.signals import post_save
 from faceapi.routers.models import GeneratedReponse
 from corestring import file_hash, string_hash
-
 
 
 class Generated(DbModel):
@@ -45,9 +44,7 @@ class Generated(DbModel):
         assert uid
         source: Image = kwds.get("source")
         assert source
-        return string_hash(
-            f"{source.hash}-{prompt.hash}-{uid}"
-        )
+        return string_hash(f"{source.hash}-{prompt.hash}-{uid}")
 
     @classmethod
     def get_or_create(cls, **kwargs) -> tuple["Generated", bool]:
@@ -76,13 +73,10 @@ class Generated(DbModel):
 
     def save(self, *args, **kwds):
         self.last_modified = datetime.datetime.now(tz=datetime.timezone.utc)
-        if 'only' in kwds:
-            kwds['only'].append('last_modified')
-        ret = super().save(*args, **kwds)
-        fdb = GeneerationDb(uid=self.uid)
-        fdb.status(slug=self.slug, status=self.Status, last_modified=self.last_modified)
-        return ret
-    
+        if "only" in kwds:
+            kwds["only"].append("last_modified")
+        return super().save(*args, **kwds)
+
     def delete_instance(self, recursive: bool = ..., delete_nullable: bool = ...):
         GeneerationDb(uid=self.uid).remove(self.slug)
         return super().delete_instance(recursive, delete_nullable)
@@ -108,3 +102,11 @@ class Generated(DbModel):
             (("uid", "slug", "last_modified"), False),
             (("slug",), True),
         )
+
+
+@post_save(sender=Generated)
+def on_save_handler(model_class, instance, created):
+    fdb = GeneerationDb(uid=instance.uid)
+    fdb.status(
+        slug=instance.slug, status=instance.Status, last_modified=instance.last_modified
+    )

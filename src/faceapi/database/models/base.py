@@ -1,4 +1,5 @@
-from peewee import DoesNotExist, Model
+from peewee import DoesNotExist
+from playhouse.signals import Model
 from playhouse.shortcuts import model_to_dict
 from humanfriendly.tables import format_robust_table
 
