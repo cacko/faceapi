@@ -148,7 +148,7 @@ async def api_generate(
         reuse = False
         if not data_json.get("seed", None):
             data_json["seed"] = -1
-        logging.warn(f"fetching file from {image_url}")
+        logging.info(f"fetched file from {image_url}")
     source, _ = Image.get_or_create(
         Type=ImageType.SOURCE,
         Image=face_path.as_posix(),
