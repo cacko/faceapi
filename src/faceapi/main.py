@@ -61,7 +61,7 @@ generator_worker.start()
 scheduler = Scheduler(BackgroundScheduler(), app_config.redis.url)
 
 
-if not scheduler.is_running:
+if not Scheduler.is_running:
     Scheduler.add_job(
         id="update_options",
         func=update_options,
