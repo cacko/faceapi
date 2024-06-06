@@ -22,8 +22,8 @@ class Client:
         method: Method = Method.POST,
     ):
         params: dict = {}
-        logging.debug(attachment)
-        logging.debug(json_data)
+        logging.warning(attachment)
+        logging.warning(json_data)
         if attachment:
             kind = filetype.guess(attachment.as_posix())
             fp = attachment.open("rb")
@@ -44,7 +44,7 @@ class Client:
                 {},
             )
             params["data"] = {**form_data, "data": json.dumps(form_data)}
-            logging.debug(params)
+            logging.warning(params)
         else:
             params["json"] = reduce(
                 lambda r, x: {
@@ -58,7 +58,7 @@ class Client:
                 json_data.keys(),
                 {},
             )
-            logging.debug(params["json"])
+            logging.warning(params["json"])
 
         extra_headers = {}
 
