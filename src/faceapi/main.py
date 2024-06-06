@@ -60,29 +60,31 @@ generator_worker.start()
 
 scheduler = Scheduler(BackgroundScheduler(), app_config.redis.url)
 
-Scheduler.add_job(
-    id="update_options",
-    func=update_options,
-    trigger="interval",
-    minutes=10,
-    misfire_grace_time=300,
-    max_instances=1,
-    coalesce=True,
-    replace_existing=True,
-)
 
-Scheduler.add_job(
-    id="update_access",
-    func=update_access,
-    trigger="interval",
-    minutes=10,
-    misfire_grace_time=300,
-    max_instances=1,
-    coalesce=True,
-    replace_existing=True,
-)
+if __name__ == "__main__":
+    Scheduler.add_job(
+        id="update_options",
+        func=update_options,
+        trigger="interval",
+        minutes=10,
+        misfire_grace_time=300,
+        max_instances=1,
+        coalesce=True,
+        replace_existing=True,
+    )
 
-Scheduler.start()
+    Scheduler.add_job(
+        id="update_access",
+        func=update_access,
+        trigger="interval",
+        minutes=10,
+        misfire_grace_time=300,
+        max_instances=1,
+        coalesce=True,
+        replace_existing=True,
+    )
+
+    Scheduler.start()
 
 
 def handler_stop_signals(signum, frame):

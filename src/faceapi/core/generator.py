@@ -39,7 +39,6 @@ class Generator(StoppableThread):
                 item.Status = Status.IN_PROGRESS
                 item.save(only=["Status"])
             prompt: Prompt = item.prompt
-            logging.info(prompt)
             client = Face2Img(
                 img_path=item.source.tmp_path,
                 template=prompt.template,
