@@ -1,5 +1,3 @@
-from enum import unique
-import logging
 from typing import Optional
 from faceapi.database.enums import Status
 from faceapi.database.models.image import Image
@@ -16,14 +14,13 @@ from faceapi.database.fields import (
 from peewee import (
     CharField,
     DateTimeField,
-    BooleanField,
     IntegrityError,
     ForeignKeyField,
 )
 import datetime
 from playhouse.signals import post_save
 from faceapi.routers.models import GeneratedReponse
-from corestring import file_hash, string_hash
+from corestring import string_hash
 
 
 class Generated(DbModel):
