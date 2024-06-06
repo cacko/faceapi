@@ -144,7 +144,7 @@ async def api_generate(
     except AssertionError:
         image_url = data_json.get("image_url")
         del data_json["image_url"]
-        face_path = download_image(image_url)
+        face_path = await download_image(image_url)
         reuse = False
         if not data_json.get("seed", None):
             data_json["seed"] = -1
