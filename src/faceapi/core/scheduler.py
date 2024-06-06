@@ -1,3 +1,4 @@
+import logging
 from apscheduler.jobstores.redis import RedisJobStore
 from apscheduler.schedulers.background import BackgroundScheduler
 from urllib.parse import urlparse, parse_qs
@@ -17,6 +18,7 @@ class SchedulerMeta(type):
 
     def start(cls):
         assert cls._instance
+        logging.info(">> SCHEDULER start")
         cls._instance._scheduler.start()
 
     def stop(cls):
