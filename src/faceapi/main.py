@@ -1,5 +1,6 @@
 import logging
 import os
+from corefile import TempPath
 from fastapi import FastAPI
 from faceapi.core.queue import GeneratorQueue
 from faceapi.core.scheduler import Scheduler
@@ -88,6 +89,7 @@ def handler_stop_signals(signum, frame):
     generator_worker.stop()
     Database.db.close_all()
     Scheduler.stop()
+    TempPath.clean()
     raise RuntimeError
 
 

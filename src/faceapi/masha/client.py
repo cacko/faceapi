@@ -22,14 +22,17 @@ class Client:
         method: Method = Method.POST,
     ):
         params: dict = {}
-        logging.warning(attachment)
-        logging.warning(json_data)
         if attachment:
             kind = filetype.guess(attachment.as_posix())
             fp = attachment.open("rb")
             assert kind
             params["files"] = {
-                "file": (f"{attachment.stem}.{kind.extension}", fp, kind.mime, {"Expires": "0"})
+                "file": (
+                    f"{attachment.stem}.{kind.extension}",
+                    fp,
+                    kind.mime,
+                    {"Expires": "0"},
+                )
             }
             form_data = reduce(
                 lambda r, x: {
@@ -44,7 +47,7 @@ class Client:
                 {},
             )
             params["data"] = {**form_data, "data": json.dumps(form_data)}
-            logging.warning(params)
+            logging.debug(params)
         else:
             params["json"] = reduce(
                 lambda r, x: {
@@ -58,7 +61,7 @@ class Client:
                 json_data.keys(),
                 {},
             )
-            logging.warning(params["json"])
+            logging.debug(params["json"])
 
         extra_headers = {}
 
