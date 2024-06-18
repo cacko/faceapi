@@ -2,6 +2,7 @@ import logging
 from typing import Any, Optional
 from cachable.request import Method, Request
 from pathlib import Path
+from fastapi import HTTPException
 import filetype
 from functools import reduce
 import json
@@ -82,8 +83,8 @@ class Client:
         req = self.__make_request(
             path=path, json_data=data, attachment=attachment, method=method
         )
-        # if req.status > 400:
-        #     raise ApiError("Error")
+        if req.status > 400:
+            raise HTTPException(req.status, req.body)
         message = ""
         attachment = None
         is_multipart = req.is_multipart
