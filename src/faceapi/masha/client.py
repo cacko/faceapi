@@ -10,7 +10,7 @@ from faceapi.config import app_config
 from uuid import uuid4
 from corefile import TempPath
 
-from faceapi.masha.models import ENDPOINT
+from faceapi.masha.models import ENDPOINT, APIError
 
 
 class Client:
@@ -84,7 +84,7 @@ class Client:
             path=path, json_data=data, attachment=attachment, method=method
         )
         if req.status > 400:
-            raise HTTPException(req.status, req.body)
+            raise APIError(req.status, req.body)
         message = ""
         attachment = None
         is_multipart = req.is_multipart

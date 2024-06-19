@@ -9,6 +9,8 @@ from queue import Empty, Queue
 from corethread import StoppableThread
 from corestring import to_int
 
+from faceapi.masha.models import APIError
+
 class Generator(StoppableThread):
 
     def __init__(self, queue: Queue, *args, **kwargs):
@@ -67,6 +69,10 @@ class Generator(StoppableThread):
             item.image = img
             item.Status = Status.GENERATED
             return item.save(only=["image", "Status", "prompt"])
+        except APIError as e:
+            item.error = e.message
+            item.Status = Status.ERROR
+            return item.save(only=["error", "Status"])
         except Exception as e:
             logging.exception(e)
             logging.error(str(e))
