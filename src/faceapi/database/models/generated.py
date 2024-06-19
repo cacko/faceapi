@@ -105,5 +105,8 @@ class Generated(DbModel):
 def on_save_handler(model_class, instance, created):
     fdb = GeneerationDb(uid=instance.uid)
     fdb.status(
-        slug=instance.slug, status=instance.Status, last_modified=instance.last_modified
+        slug=instance.slug,
+        status=instance.Status,
+        last_modified=instance.last_modified,
+        error=instance.error,
     )
