@@ -84,7 +84,7 @@ class Client:
             path=path, json_data=data, attachment=attachment, method=method
         )
         if req.status > 400:
-            raise APIError(req.status, req.json().detail)
+            raise APIError(req.status, req.json().get("detail"))
         message = ""
         attachment = None
         is_multipart = req.is_multipart
