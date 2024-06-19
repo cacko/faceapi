@@ -70,12 +70,12 @@ class Generator(StoppableThread):
             item.Status = Status.GENERATED
             return item.save(only=["image", "Status", "prompt"])
         except APIError as e:
-            item.error = e.message
+            item.error = e.message.get("detail") if isinstance(e.message, dict) else str(e.message)
             item.Status = Status.ERROR
             return item.save(only=["error", "Status"])
         except Exception as e:
             logging.exception(e)
             logging.error(str(e))
-            item.error = str(e)
+            item.error = str(e.__cause__)
             item.Status = Status.ERROR
             return item.save(only=["error", "Status"])
