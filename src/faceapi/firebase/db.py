@@ -22,13 +22,12 @@ class GeneerationDb(object):
         self, slug: str, status: Status, last_modified: datetime, error: str = None
     ):
         status_ref = self.root_ref.child(slug)
-        return status_ref.set(
-            dict(
-                status=status.value,
-                last_modified=last_modified.isoformat(),
-                error=error,
-            )
+        data = dict(
+            status=status.value,
+            last_modified=last_modified.isoformat(),
+            error=error,
         )
+        return status_ref.set(dict(filter(lambda x: x[1] is not None, data.items())))
 
     def remove(self, slug: str):
         status_ref = self.root_ref.child(slug)
