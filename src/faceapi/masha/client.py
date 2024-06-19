@@ -83,7 +83,7 @@ class Client:
         req = self.__make_request(
             path=path, json_data=data, attachment=attachment, method=method
         )
-        if req.status > 400:
+        if all([req.status > 400, req.status < 600]):
             raise APIError(req.status, req.json.get("detail"))
         message = ""
         attachment = None
