@@ -2,9 +2,11 @@ from peewee import DoesNotExist
 from playhouse.signals import Model
 from playhouse.shortcuts import model_to_dict
 from humanfriendly.tables import format_robust_table
-
 from faceapi.routers.models import BaseResponse
+from datetime import datetime, timezone
 
+def default_timestamp():
+    return datetime.now(tz=timezone.utc)
 
 class DbModel(Model):
     @classmethod

@@ -4,7 +4,7 @@ from faceapi.database.models.image import Image
 from faceapi.database.models.prompt import Prompt
 from faceapi.firebase.db import GeneerationDb
 
-from .base import DbModel
+from .base import DbModel, default_timestamp
 from faceapi.database import Database
 from faceapi.database.fields import (
     CleanCharField,
@@ -29,7 +29,7 @@ class Generated(DbModel):
     image = ForeignKeyField(Image, null=True)
     source = ForeignKeyField(Image)
     prompt = ForeignKeyField(Prompt)
-    last_modified = DateTimeField(default=datetime.datetime.now)
+    last_modified = DateTimeField(default=default_timestamp)
     Status = StatusField(default=Status.PENDING)
     error = CleanTextField(null=True)
 
@@ -67,6 +67,8 @@ class Generated(DbModel):
     def create(cls, **query):
         query["slug"] = cls.get_slug(**query)
         return super().create(**query)
+    
+    
 
     def save(self, *args, **kwds):
         self.last_modified = datetime.datetime.now(tz=datetime.timezone.utc)
