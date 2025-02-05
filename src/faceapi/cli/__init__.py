@@ -2,6 +2,7 @@ from pathlib import Path
 import time
 from rich import print
 import typer
+from faceapi.core import s3
 from faceapi.core.commands import Command
 from faceapi.database.enums import ImageType, Status
 from faceapi.firebase.db import GeneerationDb
@@ -16,6 +17,7 @@ from threading import Event as TEvent
 from faceapi.core.jobs import update_options as job_update_options
 from faceapi.core.jobs import update_access as job_update_access
 from faceapi.core.jobs import resume_generations as job_resume_generations
+from faceapi.config import app_config
 
 cli = typer.Typer()
 
@@ -58,6 +60,17 @@ def init_db():
         create_tables(drop=True)
     except AssertionError:
         logging.info("ignored")
+        
+@cli.command()
+def clean():
+    gen_ids = [x.image.Image.split(".")[0] for x in Generated.select() if x.image]
+    objs = [k["Key"] for k in s3.S3.list(dst=app_config.aws.media_location)]
+    for obj in objs:
+        id = obj.split("/")[-1].split(".")[0]
+        if id not in gen_ids:
+            print(id, obj)
+            print(s3.S3.delete(obj.split("/")[-1]))
+    pass
         
 
 @cli.command()

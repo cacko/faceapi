@@ -1,5 +1,7 @@
 import boto3
 from pathlib import Path
+
+import boto3.s3
 from faceapi.config import app_config
 from corefile import TempPath
 import filetype
@@ -22,13 +24,15 @@ class S3Meta(type):
 
     def src_key(cls, dst):
         return f"{app_config.aws.media_location}/{dst}"
+    
+    def list(cls, dst):
+        return cls().list_files(dst)
 
 
 class S3(object, metaclass=S3Meta):
 
     def __init__(self) -> None:
         cfg = app_config.aws
-        logging.debug(cfg)
         self._client = boto3.client(
             service_name="s3",
             aws_access_key_id=cfg.access_key_id,
@@ -63,4 +67,10 @@ class S3(object, metaclass=S3Meta):
 
     def delete_file(self, file_name: str) -> bool:
         bucket = app_config.aws.storage_bucket_name
+        print(file_name)
         return self._client.delete_object(Bucket=bucket, Key=file_name)
+    
+    def list_files(self, pth: str):
+        bucket = app_config.aws.storage_bucket_name
+        ref = self._client.list_objects_v2(Bucket=bucket, Prefix=pth)
+        return[x for x in ref['Contents']]
