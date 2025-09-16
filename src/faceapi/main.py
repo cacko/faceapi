@@ -89,7 +89,7 @@ if not Scheduler.is_running:
 
 def handler_stop_signals(signum, frame):
     generator_worker.stop()
-    Database.db.close_all()
+    Database.db.close()
     Scheduler.stop()
     TempPath.clean()
     raise RuntimeError

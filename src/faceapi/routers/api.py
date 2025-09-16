@@ -13,7 +13,6 @@ from fastapi import (
     Depends,
     UploadFile,
 )
-from sympy import im
 from faceapi.core.commands import Command
 from faceapi.core.queue import GeneratorQueue
 from faceapi.database.database import Database
