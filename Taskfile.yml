@@ -33,7 +33,7 @@ tasks:
   logs:
     desc: monitor logs
     cmds:
-      - ssh $REMOTE_HOST 'source ~/.zshrc;journalctl --user-unit {{.PROJECT}} -f --all'
+      - ssh $REMOTE_HOST 'source ~/.zshrc;journalctl --user-unit {{.PROJECT}} -f -a'
 
   exec:
     desc: run  cli on remote
